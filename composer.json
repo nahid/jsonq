@@ -1,0 +1,21 @@
+{
+    "name": "nahid/jsonq",
+    "description": "JsonQ is a json data query library",
+    "keywords": ["json", "query", "nahid", "jsonq", "jsondb"],
+    "license": "Creative Common",
+    "type": "library",
+    "require": {
+        "php": ">=5.5.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Nahid\\JsonQ\\": "src/"  
+        }
+    },
+    "config": {
+        "preferred-install": "dist"
+    }
+}
