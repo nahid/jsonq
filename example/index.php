@@ -3,11 +3,13 @@ require '../vendor/autoload.php';
 
 use Nahid\JsonQ\Jsonq;
 
-$json=new Jsonq('../composer.json');
+$json=new Jsonq();
+$json->import('../data.json');
 
-$x = $json->node('license')->get();
 
-var_dump($x);
+$result = $json->node('items')->where('id', '>', 4)->where('price', '=', 1500)->get();
+
+var_dump($result);
 
 
 

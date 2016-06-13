@@ -1,0 +1,15 @@
+{
+	"name": "products",
+	"description": "Features product list",
+	"vendor":{
+		"name": "Computer Source BD",
+		"email": "info@example.com",
+		"website":"www.example.com"
+	},
+	"items":[
+		{"id":1, "name":"MacBook Pro 13 inch retina", "price": 1500},
+		{"id":2, "name":"MacBook Pro 15 inch retina", "price": 1700},
+		{"id":3, "name":"Sony VAIO", "price": 1200},
+		{"id":4, "name":"Fujitsu", "price": 850}
+	]
+}
