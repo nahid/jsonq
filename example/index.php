@@ -1,9 +1,9 @@
 <?php
-require 'vendor/autoload.php';
+require '../vendor/autoload.php';
 
 use Nahid\JsonQ\Jsonq;
 
-$json=new Jsonq('composer.json');
+$json=new Jsonq('../composer.json');
 
 $x = $json->node('license')->get();
 
