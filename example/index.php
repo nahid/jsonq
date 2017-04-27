@@ -9,9 +9,8 @@ $json->import('../data.json');
 
 $result = $json
 			->node('items')
-			->where('id', '=', 3)
-			->where('price', '=', 1200)
-			->get();
+			->where('id', '>', 1)
+			->fetch(false);
 
 var_dump($result);
 

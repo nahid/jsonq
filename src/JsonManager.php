@@ -116,35 +116,6 @@ class JsonManager
 		return false;
 	}
 
-	protected function runFilter($data, $key, $condition, $value)
-	{
-	    $func ='where'. ucfirst($this->_conditions[$condition]);
-	    return $this->$func($data, $key, $value);
-	}
-
-	protected function makeWhere($rule, $key=null, $condition=null, $value=null)
-	{
-		$data = $this->getData();
-		$calculatedData = $this->runFilter($data, $key, $condition, $value);
-		if(!is_null($this->_calculatedData)) {
-			if($rule=='and')
-				$calculatedData = array_intersect(array_keys($this->_calculatedData), array_keys($calculatedData));
-
-			if($rule=='or')
-				$calculatedData = array_merge(array_keys($this->_calculatedData), array_keys($calculatedData));
-
-			$this->_calculatedData='';
-
-			foreach ($calculatedData as $value) {
-				$this->_calculatedData[$value]= $data[$value];
-			}
-			return true;
-		}
-		$this->_calculatedData = $calculatedData;
-		return true;
-	}
-
-
 
 	public function isStrStartWith($string, $like)
 	{
@@ -171,7 +142,7 @@ class JsonManager
 		$andData = $this->fetchAndData();
 		$orData = $this->fetchOrData();
 		//var_dump($andData);
-		var_dump($andData);
+		//var_dump($andData);
 		$newData = array_replace($andData, $orData);
 		//var_dump($newData);
 		return $newData;

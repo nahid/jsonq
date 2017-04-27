@@ -6,12 +6,11 @@ use Nahid\JsonQ\JsonManager;
 
 class Jsonq extends JsonManager
 {
+
 	protected $_file;
 	protected $_node='';
 	protected $_data=array();
 
-
-	protected $_calculatedData = null;
 
 	protected $_conditions = [
 		'>'=>'greater',
@@ -75,45 +74,39 @@ class Jsonq extends JsonManager
 		return $this;
 	}
 
-	public function get()
+	public function get($object = true)
 	{
 		$calculatedData = $this->processConditions();
 
 		$resultingData = [];
 
 		foreach ($calculatedData as $data) {
-			$resultingData[]	= $data;
+			if ($object) {
+				$resultingData[]	= (object) $data;
+			} else {
+				$resultingData[]	= $data;
+			}
 		}
 
 		return $resultingData;
 
-
-
-		/*if(is_null($this->_calculatedData)) {
-			return $this->getData();
-		}
-
-		return $this->_calculatedData;*/
 	}
 
-	public function fetch()
+	public function fetch($object = true)
 	{
-		return $this->get();
+		return $this->get($object);
 	}
+
 
 	public function first()
 	{
-		if(is_null($this->_calculatedData)) {
-			$data = $this->getData();
-			if(is_array($data)) {
-				return json_decode(json_encode(reset($data)));
-			}
-
-			return $data;
-
+		$data = $this->get(false);
+		if (count($data>0)) {
+			return json_decode(json_encode(reset($data)));
 		}
 
-		return json_decode(json_encode(reset($this->_calculatedData)));
+		return null;
+		
 	}
 
 
@@ -155,64 +148,4 @@ class Jsonq extends JsonManager
 
 	}
 
-
-
-	protected function whereGreater($data, $key, $value)
-	{
-		return array_filter($data, function($var) use($key, $value){
-			if(isset($var[$key]))
-			if($var[$key]>$value){
-				return $var;
-			}
-		});
-	}
-
-	protected function whereLess($data, $key, $value)
-	{
-		return array_filter($data, function($var) use($key, $value){
-			if(isset($var[$key]))
-			if($var[$key]<$value){
-				return $var;
-			}
-		});
-	}
-
-	protected function whereEqual($data, $key, $value)
-	{
-		return array_filter($data, function($var) use($key, $value){
-			if(isset($var[$key]))
-			if($var[$key]==$value){
-				return $var;
-			}
-		});
-	}
-
-	protected function whereGreaterequal($data, $key, $value)
-	{
-		return array_filter($data, function($var) use($key, $value){
-			if(isset($var[$key]))
-			if($var[$key]>=$value){
-				return $var;
-			}
-		});
-	}
-	protected function whereLessequal($data, $key, $value)
-	{
-		return array_filter($data, function($var) use($key, $value){
-			if(isset($var[$key]))
-			if($var[$key]<=$value){
-				return $var;
-			}
-		});
-	}
-
-	protected function whereNotequal($data, $key, $value)
-	{
-		return array_filter($data, function($var) use($key, $value){
-			if(isset($var[$key]))
-			if($var[$key]!=$value){
-				return $var;
-			}
-		});
-	}
 }
