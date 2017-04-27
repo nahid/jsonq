@@ -7,6 +7,26 @@ class JsonManager
 	protected $_node;
 	protected $_map;
 	protected $_path = '';
+	protected $_conds = [
+		'='	=> 'equal',
+		'!='	=> 'notEqual',
+		'>'	=>	'greater',
+		'<'	=>	'less',
+		'>='	=>	'greaterEqual',
+		'<='	=>	'lessEqual'
+	];
+
+	/**
+	 * Stores where conditions
+	 * @var array
+	 */
+	protected $_andConditions = [];
+
+	/**
+	 * Stores orWhere conditions
+	 * @var array
+	 */
+	protected $_orConditions = [];
 
 	public function __construct($path=null)
 	{
@@ -143,6 +163,122 @@ class JsonManager
 			return $prefix.md5($name);
 		}
 		return $prefix.$name;
+	}
+
+
+	protected function processConditions() 
+	{
+		$andData = $this->fetchAndData();
+		$orData = $this->fetchOrData();
+		//var_dump($andData);
+		var_dump($andData);
+		$newData = array_replace($andData, $orData);
+		//var_dump($newData);
+		return $newData;
+
+	}
+
+	protected function fetchAndData()
+	{
+		$data = $this->getData();
+		$conditions = $this->_andConditions;
+
+		$calculatedData = [];
+
+		foreach($data as $id=>$record) {
+			if ($this->filterByAndConditions($record, $conditions)) {
+				$calculatedData[$id]	=	$record;
+			}
+		}
+
+		return $calculatedData;
+
+	}
+
+	protected function fetchOrData()
+	{
+		$data = $this->getData();
+		$conditions = $this->_orConditions;
+
+		$calculatedData = [];
+
+		foreach($data as $id=>$record) {
+			if ($this->filterByOrConditions($record, $conditions)) {
+				$calculatedData[$id]	=	$record;
+			}
+		}
+
+		return $calculatedData;
+
+	}
+
+	protected function filterByAndConditions($record, $conditions)
+	{
+		$return = false;
+		foreach($conditions as $rule) {
+			$func = 'cond' .  ucfirst($this->_conds[$rule['condition']]);
+			if (method_exists($this, $func)) {
+				if (call_user_func_array([$this,  $func] , [$record[$rule['key']], $rule['value']])) {
+					$return = true;
+				} else {
+					return false;
+				}
+			}
+		}
+
+		return $return;
+	}
+
+	protected function filterByOrConditions($record, $conditions)
+	{
+		$return = false;
+		foreach($conditions as $rule) {
+			$func = 'cond' .  ucfirst($this->_conds[$rule['condition']]);
+			if (method_exists($this, $func)) {
+				if (call_user_func_array([$this,  $func] , [$record[$rule['key']], $rule['value']])) {
+					return true;
+				}
+			}
+		}
+
+		return $return;
+	}
+
+	protected function condEqual($key, $val)
+	{
+		if ($key == $val) {
+			return true;
+		}
+	}
+	protected function condNotEqual($key, $val)
+	{
+		if ($key != $val) {
+			return true;
+		}
+	}
+	protected function condGreater($key, $val)
+	{
+		if ($key > $val) {
+			return true;
+		}
+	}
+	protected function condLess($key, $val)
+	{
+		if ($key < $val) {
+			return true;
+		}
+	}
+	protected function condGreaterEqual($key, $val)
+	{
+		if ($key >= $val) {
+			return true;
+		}
+	}
+	protected function condLessEqual($key, $val)
+	{
+		if ($key <= $val) {
+			return true;
+		}
 	}
 
 }

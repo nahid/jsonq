@@ -10,17 +10,6 @@ class Jsonq extends JsonManager
 	protected $_node='';
 	protected $_data=array();
 
-	/**
-	 * Stores where conditions
-	 * @var array
-	 */
-	protected $_andConditions = [];
-
-	/**
-	 * Stores orWhere conditions
-	 * @var array
-	 */
-	protected $_orConditions = [];
 
 	protected $_calculatedData = null;
 
@@ -63,24 +52,48 @@ class Jsonq extends JsonManager
 
 	public function where($key=null, $condition=null, $value=null)
 	{
-		$this->makeWhere('and', $key, $condition, $value);
+		//$this->makeWhere('and', $key, $condition, $value);
+		$this->_andConditions [] = [
+			'key'	=>	$key,
+			'condition'	=> $condition,
+			'value'	=>	$value
+		];
+
 		return $this;
 	}
 
 
 	public function orWhere($key=null, $condition=null, $value=null)
 	{
-		$this->makeWhere('or', $key, $condition, $value);
+		//$this->makeWhere('or', $key, $condition, $value);
+		$this->_orConditions [] = [
+			'key'	=>	$key,
+			'condition'	=> $condition,
+			'value'	=>	$value
+		];
+
 		return $this;
 	}
 
 	public function get()
 	{
-		if(is_null($this->_calculatedData)) {
+		$calculatedData = $this->processConditions();
+
+		$resultingData = [];
+
+		foreach ($calculatedData as $data) {
+			$resultingData[]	= $data;
+		}
+
+		return $resultingData;
+
+
+
+		/*if(is_null($this->_calculatedData)) {
 			return $this->getData();
 		}
 
-		return $this->_calculatedData;
+		return $this->_calculatedData;*/
 	}
 
 	public function fetch()

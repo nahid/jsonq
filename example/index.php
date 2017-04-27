@@ -7,7 +7,11 @@ $json=new Jsonq();
 $json->import('../data.json');
 
 
-$result = $json->node('items')->where('id', '>', 4)->where('price', '=', 1500)->get();
+$result = $json
+			->node('items')
+			->where('id', '=', 3)
+			->where('price', '=', 1200)
+			->get();
 
 var_dump($result);
 
