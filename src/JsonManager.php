@@ -92,6 +92,10 @@ class JsonManager
 
     protected function getData()
 	{
+		if (count($this->_node)==0 || empty($this->_node) || $this->_node == ':') {
+			return $this->_map;
+		}
+
 		if($this->_node) {
 			$terminate=false;
 			$map = $this->_map;
@@ -185,6 +189,7 @@ class JsonManager
 
 	protected function filterByAndConditions($record, $conditions)
 	{
+
 		$return = false;
 		foreach($conditions as $rule) {
 			$func = 'cond' .  ucfirst($this->_conds[$rule['condition']]);

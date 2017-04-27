@@ -8,12 +8,12 @@ $json->import('../data.json');
 
 
 $result = $json
-			->node('items')
-			->where('id', '>', 1)
-			->fetch(false);
+			->node('users')
+            ->where('id', '=', 6)->get();
 
+            
+
+echo '<pre>';
 var_dump($result);
+?>
 
-
-
-// var_dump($json->node('products')->where('name', '=', 'Keyboard')->fetch());

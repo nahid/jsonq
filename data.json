@@ -6,10 +6,16 @@
 		"email": "info@example.com",
 		"website":"www.example.com"
 	},
-	"items":[
-		{"id":1, "name":"MacBook Pro 13 inch retina", "price": 1500},
-		{"id":2, "name":"MacBook Pro 15 inch retina", "price": 1700},
-		{"id":3, "name":"Sony VAIO", "price": 1200},
-		{"id":4, "name":"Fujitsu", "price": 850}
+	"users":[
+		{"id":1, "name":"Johura Akter Sumi", "location": "Barisal"},
+		{"id":2, "name":"Mehedi Hasan Nahid", "location": "Barisal"},
+		{"id":3, "name":"Ariful Islam", "location": "Barisal"},
+		{"id":4, "name":"Suhel Ahmed", "location": "Sylhet"},
+		{"id":5, "name":"Firoz Serniabat", "location": "Gournodi"},
+		{"id":6, "name":"Musa Jewel", "location": "Barisal", "visits": [
+			{"name": "Sylhet", "year": 2011},
+			{"name": "Cox's Bazar", "year": 2012},
+			{"name": "Bandarbar", "year": 2014}
+		]}	
 	]
 }

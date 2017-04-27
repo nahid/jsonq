@@ -44,6 +44,10 @@ class Jsonq extends JsonManager
 	public function node($node=null)
 	{
 		if(is_null($node) || $node=='') return false;
+		if ($node == ':') {
+			$this->_node = $node;
+			return $this;
+		}
 
 		$this->_node=explode(':', $node);
 		return $this;
@@ -76,19 +80,30 @@ class Jsonq extends JsonManager
 
 	public function get($object = true)
 	{
-		$calculatedData = $this->processConditions();
+		//if (count(@$_andConditions)>0 or count(@$_orConditions)>0) {
+			$calculatedData = $this->processConditions();
 
-		$resultingData = [];
+			$resultingData = [];
 
-		foreach ($calculatedData as $data) {
-			if ($object) {
-				$resultingData[]	= (object) $data;
-			} else {
-				$resultingData[]	= $data;
+			foreach ($calculatedData as $data) {
+				if ($object) {
+					$resultingData[]	= (object) $data;
+				} else {
+					$resultingData[]	= $data;
+				}
 			}
-		}
 
-		return $resultingData;
+			unset($this->_andConditions);
+			unset($this->_orConditions);
+			$this->_node = '';
+			$this->_andConditions = [];
+			$this->_orConditions = [];
+
+			return $resultingData;
+		//}
+
+		//return $this->getData();
+		
 
 	}
 
@@ -98,16 +113,44 @@ class Jsonq extends JsonManager
 	}
 
 
-	public function first()
+	public function first($object = true)
 	{
 		$data = $this->get(false);
 		if (count($data>0)) {
-			return json_decode(json_encode(reset($data)));
+			if ($object) {
+				return json_decode(json_encode(reset($data)));
+			}
+
+			return json_decode(json_encode(reset($data)), true);
+			
 		}
 
 		return null;
 		
 	}
+
+	public function then($node)
+	{
+		$this->_map = $this->first(false);
+
+		$this->node($node);
+		return $this;
+	}
+
+	public function collect($data)
+	{
+		$this->_map = $this->objectToArray($data);
+		return $this;
+	}
+
+	public function objectToArray($obj) {
+        if(!is_array($obj) && !is_object($obj)) return $obj;
+
+		if(is_object($obj)) $obj = get_object_vars($obj);
+
+        return array_map([$this,'objectToArray'], $obj);
+    }
+
 
 
     /*
