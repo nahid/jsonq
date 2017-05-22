@@ -143,6 +143,13 @@ class JsonManager
 
 	protected function processConditions() 
 	{
+		$data = $this->getData();
+		if (is_string($data)) {
+			return $data;
+		}
+		if (!$this->isMultiArray($data)) {
+			return $data;
+		}
 		$andData = $this->fetchAndData();
 		$orData = $this->fetchOrData();
 		//var_dump($andData);
