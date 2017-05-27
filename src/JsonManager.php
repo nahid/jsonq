@@ -13,7 +13,7 @@ class JsonManager
 		'>'	=>	'greater',
 		'<'	=>	'less',
 		'>='	=>	'greaterEqual',
-		'<='	=>	'lessEqual'
+		'<='	=>	'lessEqual',
 		'LIKE'  => 'like'
 	];
 
