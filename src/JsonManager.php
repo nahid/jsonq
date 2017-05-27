@@ -14,6 +14,7 @@ class JsonManager
 		'<'	=>	'less',
 		'>='	=>	'greaterEqual',
 		'<='	=>	'lessEqual'
+		'LIKE'  => 'like'
 	];
 
 	/**
@@ -260,6 +261,13 @@ class JsonManager
 	protected function condLessEqual($key, $val)
 	{
 		if ($key <= $val) {
+			return true;
+		}
+	}
+	
+	protected function condLike($key, $val)
+	{
+		if (strpos($key, $val) !== false) {
 			return true;
 		}
 	}
