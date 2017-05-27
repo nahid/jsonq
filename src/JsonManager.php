@@ -267,7 +267,7 @@ class JsonManager
 	
 	protected function condLike($key, $val)
 	{
-		if (strpos($key, $val) !== false) {
+		if (stripos($key, $val) !== false) {
 			return true;
 		}
 	}
