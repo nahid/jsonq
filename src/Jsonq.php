@@ -82,6 +82,9 @@ class Jsonq extends JsonManager
 	{
 		//if (count(@$_andConditions)>0 or count(@$_orConditions)>0) {
 			$calculatedData = $this->processConditions();
+			if (is_null($calculatedData)) {
+			    return $calculatedData;
+            		}
 
 			if (is_string($calculatedData)) {
 				return $calculatedData;
