@@ -13,8 +13,7 @@ class JsonManager
 		'>'	=>	'greater',
 		'<'	=>	'less',
 		'>='	=>	'greaterEqual',
-		'<='	=>	'lessEqual',
-		'LIKE'  => 'like'
+		'<='	=>	'lessEqual'
 	];
 
 	/**
@@ -145,6 +144,10 @@ class JsonManager
 	protected function processConditions() 
 	{
 		$data = $this->getData();
+		if (!$data) {
+		    return null;
+		}
+
 		if (is_string($data)) {
 			return $data;
 		}
@@ -261,13 +264,6 @@ class JsonManager
 	protected function condLessEqual($key, $val)
 	{
 		if ($key <= $val) {
-			return true;
-		}
-	}
-	
-	protected function condLike($key, $val)
-	{
-		if (stripos($key, $val) !== false) {
 			return true;
 		}
 	}
