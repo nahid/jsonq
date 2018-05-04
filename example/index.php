@@ -7,13 +7,11 @@ $json=new Jsonq();
 $json->import('../data.json');
 
 
-$result = $json
-			->node('users')
-            ->where('id', '=', 6)->get();
+$result = $json->find('users.5.visits.0.name');
 
             
 
 echo '<pre>';
-var_dump($result);
+dump($result);
 ?>
 

@@ -41,15 +41,16 @@ class Jsonq extends JsonManager
         
     }
 
-	public function node($node=null)
+
+    public function from($node=null)
 	{
 		if(is_null($node) || $node=='') return false;
-		if ($node == ':') {
+		if ($node == '.') {
 			$this->_node = $node;
 			return $this;
 		}
 
-		$this->_node=explode(':', $node);
+		$this->_node=explode('.', $node);
 		return $this;
 	}
 
@@ -78,30 +79,11 @@ class Jsonq extends JsonManager
 		return $this;
 	}
 
-	public function get($object = true)
+	public function fetch()
 	{
-		//if (count(@$_andConditions)>0 or count(@$_orConditions)>0) {
+		if (count($this->_andConditions)>0 or count($this->_orConditions)>0) {
 			$calculatedData = $this->processConditions();
-			if (is_null($calculatedData)) {
-			    return $calculatedData;
-            		}
 
-			if (is_string($calculatedData)) {
-				return $calculatedData;
-			}
-
-			if (!$this->isMultiArray($calculatedData)) {
-				return $calculatedData;
-			}
-			$resultingData = [];
-
-			foreach ($calculatedData as $data) {
-				if ($object) {
-					$resultingData[]	= (object) $data;
-				} else {
-					$resultingData[]	= $data;
-				}
-			}
 
 			unset($this->_andConditions);
 			unset($this->_orConditions);
@@ -109,23 +91,72 @@ class Jsonq extends JsonManager
 			$this->_andConditions = [];
 			$this->_orConditions = [];
 
-			return $resultingData;
-		//}
+			return $this->collect($calculatedData);
+		}
 
-		//return $this->getData();
-		
+
+		return $this->collect($this->getData());
+
 
 	}
 
-	public function fetch($object = true)
-	{
-		return $this->get($object);
+    public function get($object = true)
+    {
+        if (is_null($this->_map) || is_string($this->_map)) {
+            return $this->_map;
+        }
+
+        if (!$this->isMultiArray($this->_map)) {
+            return (object) $this->_map;
+        }
+        $resultingData = [];
+        foreach ($this->_map as $data) {
+            if ($object) {
+                $resultingData[]	= (object) $data;
+            } else {
+                $resultingData[]	= $data;
+            }
+        }
+        return $resultingData;
+	}
+
+    public function count()
+    {
+        return count($this->_map);
+	}
+
+    public function sum($property)
+    {
+        $sum = 0;
+        foreach ($this->_map as $key => $val) {
+            if(isset($val[$property])) {
+                if (is_numeric($val[$property])) {
+                    $sum += $val[$property];
+                }
+            }
+        }
+
+        return $sum;
+	}
+
+    public function max($property)
+    {
+        $max = max(array_column($this->_map, $property));
+
+        return $max;
+	}
+
+	public function min($property)
+    {
+        $max = min(array_column($this->_map, $property));
+
+        return $max;
 	}
 
 
 	public function first($object = true)
 	{
-		$data = $this->get(false);
+		$data = $this->_map;
 		if (count($data>0)) {
 			if ($object) {
 				return json_decode(json_encode(reset($data)));
@@ -139,11 +170,49 @@ class Jsonq extends JsonManager
 		
 	}
 
+    public function sortAs($property, $order = 'asc')
+    {
+        if (!is_array($this->_map)) {
+            return $this;
+        }
+
+        usort($this->_map, function($a, $b) use ($property, $order) {
+            $val1 = $a[$property];
+            $val2 = $b[$property];
+            if (is_string($val1)) {
+                $val1 = strtolower($val1);
+            }
+
+            if (is_string($val2)) {
+                $val2 = strtolower($val2);
+            }
+
+            if($a[$property] == $b[$property]) {
+                return 0;
+            }
+            $order = strtolower(trim($order));
+
+            if ($order == 'desc') {
+                return ($val1 > $val2) ? -1 : 1;
+            } else {
+                return ($val1 < $val2) ? -1 : 1;
+            }
+        });
+
+        return $this;
+
+	}
+
+    public function find($path)
+    {
+        return $this->from($path)->fetch()->get();
+	}
+
 	public function then($node)
 	{
-		$this->_map = $this->first(false);
+		$this->_map = $this->fetch()->first(false);
 
-		$this->node($node);
+		$this->from($node);
 		return $this;
 	}
 
@@ -161,44 +230,5 @@ class Jsonq extends JsonManager
         return array_map([$this,'objectToArray'], $obj);
     }
 
-
-
-    /*
-    getNodeValue()
-
-    This method helps to you to find or get specific node value.
-
-    @param 		: 	string $node // ':' colon separeted string
-
-    @return 	: 	string/false
-    */
-
-	public function delete()
-	{
-		$json='';
-		$node=$this->_node;
-
-		$data = &$this->_data;
-	    $finalKey = array_pop($node);
-	    foreach ($node as $key) {
-	        $data = &$data[$key];
-	    }
-
-	    if(isset($data[$finalKey])){
-	    	unset($data[$finalKey]);
-	    }else{
-	    	return false;
-	    }
-
-
-		$json=json_encode($this->_data);
-
-	    if(file_put_contents($this->_file, $json)){
-	    	return $json;
-	    }
-
-	    return false;
-
-	}
 
 }

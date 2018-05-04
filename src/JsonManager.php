@@ -58,6 +58,8 @@ class JsonManager
 	}
 
 	protected function isMultiArray( $arr ) {
+	    if (!is_array($arr)) return false;
+
 	    rsort( $arr );
 	    return isset( $arr[0] ) && is_array( $arr[0] );
 	}
@@ -92,7 +94,7 @@ class JsonManager
 
     protected function getData()
 	{
-		if (count($this->_node)==0 || empty($this->_node) || $this->_node == ':') {
+		if (count($this->_node)==0 || empty($this->_node) || $this->_node == '.') {
 			return $this->_map;
 		}
 
@@ -114,7 +116,6 @@ class JsonManager
 			if($terminate) return false;
 
 			$this->_calculatedData  = $this->_data = $map;
-
 			return $map;
 		}
 		return false;
