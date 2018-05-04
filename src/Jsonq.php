@@ -215,6 +215,17 @@ class Jsonq extends JsonManager
         return $this;
     }
 
+    public function json($data)
+    {
+        if (is_string($data)) {
+            if ($json = $this->isJson($data, true)) {
+                return $this->collect($json);
+            }
+        }
+
+        return $this;
+    }
+
     public function collect($data)
     {
         $this->_map = $this->objectToArray($data);
