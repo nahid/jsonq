@@ -8,11 +8,8 @@ use Laravel\Lumen\Application as LumenApplication;
 
 class JsonqServiceProvider extends ServiceProvider
 {
-
     /**
      * Bootstrap the application services.
-     *
-     * @return void
      */
     public function boot()
     {
@@ -21,8 +18,6 @@ class JsonqServiceProvider extends ServiceProvider
 
     /**
      * Register the application services.
-     *
-     * @return void
      */
     public function register()
     {
@@ -35,7 +30,7 @@ class JsonqServiceProvider extends ServiceProvider
      */
     protected function setupConfig()
     {
-        $source = realpath(__DIR__ . '/../config/jsonq.php');
+        $source = realpath(__DIR__.'/../config/jsonq.php');
         // Check if the application is a Laravel OR Lumen instance to properly merge the configuration file.
         if ($this->app instanceof LaravelApplication && $this->app->runningInConsole()) {
             $this->publishes([$source => config_path('jsonq.php')]);
@@ -45,18 +40,13 @@ class JsonqServiceProvider extends ServiceProvider
         $this->mergeConfigFrom($source, 'jsonq');
     }
 
-
-
-
-
     /**
-     * register JsonManager
+     * register JsonManager.
      */
-
     protected function registerJsonManager()
     {
         $config = $this->app['config'];
-        $this->app->singleton('jsonq.manager', function() use($config){
+        $this->app->singleton('jsonq.manager', function () use ($config) {
             return new JsonManager($config->get('jsonq.json.storage_path'));
         });
 
@@ -65,21 +55,18 @@ class JsonqServiceProvider extends ServiceProvider
 
     /**
      * Register Talk class.
-     *
-     * @return void
      */
     protected function registerJsonq()
     {
         $config = $this->app['config'];
-        $this->app->bind('Jsonq', function () use($config){
+        $this->app->bind('Jsonq', function () use ($config) {
             $path = $config->get('jsonq.json.storage_path');
-            $storagePath = $path==''?null:$path;
-            return new Jsonq($storagePath);
+            $storagePath = $path == '' ? null : $path;
 
+            return new Jsonq($storagePath);
         });
 
         $this->app->alias('jsonq', Jsonq::class);
-
     }
     /**
      * Get the services provided by the provider.
@@ -90,7 +77,7 @@ class JsonqServiceProvider extends ServiceProvider
     {
         return [
             'jsonq',
-            'jsonq.manager'
+            'jsonq.manager',
         ];
     }
 }
