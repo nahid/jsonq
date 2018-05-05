@@ -7,16 +7,11 @@ $json=new Jsonq();
 $json->import('../data.json');
 
 
-$result = $json
-			->from('users')
-			//->where('id', '=', 6)
-            //->then('visits')
-            //->where('year', '=', 2011)
-            ->fetch()
-            ->each(function($key, $val) {
-                echo $key . ' = ' .$val['name'] . '<br/>';
-            });
-
+$result = $json->from('products')
+    ->where('cat', '=', 1)
+    ->fetch()
+    ->sortAs('price', 'desc')
+    ->first();
             
 
 echo '<pre>';

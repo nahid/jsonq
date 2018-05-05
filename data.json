@@ -23,6 +23,7 @@
 		{"id":2, "name":"macbook pro", "cat": 2, "price": 150000},
 		{"id":3, "name":"Redmi 3S Prime", "cat": 1, "price": 12000},
 		{"id":4, "name":"Redmi 4X", "cat":1, "price": 15000},
-		{"id":5, "name":"macbook air", "cat": 2, "price": 110000}
+		{"id":5, "name":"macbook air", "cat": 2, "price": 110000},
+		{"id":6, "name":"macbook air", "cat": 2, "price": 81000}
 	]
 }
