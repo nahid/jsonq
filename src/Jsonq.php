@@ -380,7 +380,7 @@ class Jsonq extends JsonManager
         return $this;
     }
 
-    public function objectToArray($obj)
+    protected function objectToArray($obj)
     {
         if (!is_array($obj) && !is_object($obj)) {
             return $obj;
@@ -408,6 +408,7 @@ class Jsonq extends JsonManager
 
             return $implode;
         }
+        return '';
     }
 
     protected function makeImplode($key, $delimiter)
