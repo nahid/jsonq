@@ -66,6 +66,57 @@ class Jsonq extends JsonManager
         return $this;
     }
 
+
+    public function whereIn($key = null, $value = [])
+    {
+        //$this->makeWhere('or', $key, $condition, $value);
+        $this->_andConditions [] = [
+            'key' => $key,
+            'condition' => 'in',
+            'value' => $value,
+        ];
+
+        return $this;
+    }
+
+
+    public function whereNotIn($key = null, $value = [])
+    {
+        //$this->makeWhere('or', $key, $condition, $value);
+        $this->_andConditions [] = [
+            'key' => $key,
+            'condition' => 'notin',
+            'value' => $value,
+        ];
+
+        return $this;
+    }
+
+
+    public function whereNull($key = null)
+    {
+        //$this->makeWhere('or', $key, $condition, $value);
+        $this->_andConditions [] = [
+            'key' => $key,
+            'condition' => 'null',
+            'value' => null,
+        ];
+
+        return $this;
+    }
+
+    public function whereNotNull($key = null)
+    {
+        //$this->makeWhere('or', $key, $condition, $value);
+        $this->_andConditions [] = [
+            'key' => $key,
+            'condition' => 'notnull',
+            'value' => null,
+        ];
+
+        return $this;
+    }
+
     public function fetch()
     {
         if (count($this->_andConditions) > 0 or count($this->_orConditions) > 0) {
@@ -109,32 +160,58 @@ class Jsonq extends JsonManager
         return count($this->_map);
     }
 
-    public function sum($property)
+    public function sum($property = null)
     {
         $sum = 0;
-        foreach ($this->_map as $key => $val) {
-            if (isset($val[$property])) {
-                if (is_numeric($val[$property])) {
-                    $sum += $val[$property];
+        if (is_null($property)) {
+            $sum = array_sum($this->_map);
+        } else {
+            foreach ($this->_map as $key => $val) {
+                if (isset($val[$property])) {
+                    if (is_numeric($val[$property])) {
+                        $sum += $val[$property];
+                    }
                 }
             }
         }
 
+
         return $sum;
     }
 
-    public function max($property)
+    public function max($property = null)
     {
-        $max = max(array_column($this->_map, $property));
+        if (is_null($property)) {
+            $max = max($this->_map);
+        } else {
+            $max = max(array_column($this->_map, $property));
+        }
 
         return $max;
     }
 
-    public function min($property)
+    public function min($property = null)
     {
-        $max = min(array_column($this->_map, $property));
+        if (is_null($property)) {
+            $min = min($this->_map);
+        } else {
+            $min = min(array_column($this->_map, $property));
+        }
 
-        return $max;
+        return $min;
+    }
+
+    public function avg($column = null)
+    {
+        if (is_null($column)) {
+            $total = array_sum($this->_map);
+            $count = count($this->_map);
+        } else {
+            $total = $this->sum($column);
+            $count = $this->count();
+        }
+
+        return ($total/$count);
     }
 
     public function first($object = true)
@@ -149,6 +226,55 @@ class Jsonq extends JsonManager
         }
 
         return null;
+    }
+
+    public function last($object = true)
+    {
+        $data = $this->_map;
+        if (count($data) > 0) {
+            if ($object) {
+                return json_decode(json_encode(end($data)));
+            }
+
+            return json_decode(json_encode(end($data)), true);
+        }
+
+        return null;
+    }
+
+    public function nth($index, $object = true)
+    {
+        $data = $this->_map;
+        $total_elm = count($data);
+        $idx =  abs($index);
+        $result = [];
+
+
+        if (!is_integer($index) || $total_elm < $idx || $index == 0) {
+            return null;
+        }
+
+        if ($index > 0) {
+            $result = current($data);
+
+            for ($i = 1; $i<$index; $i++) {
+                $result = next($data);
+            }
+
+        } else {
+            $result = end($data);
+
+            for ($i = 1; $i < $idx; $i++) {
+                $result = prev($data);
+            }
+
+        }
+
+        if ($object) {
+            return json_decode(json_encode($result));
+        }
+
+        return json_decode(json_encode($result), true);
     }
 
     public function sortAs($property, $order = 'asc')
@@ -188,12 +314,43 @@ class Jsonq extends JsonManager
         return $this->from($path)->fetch()->get();
     }
 
+
     public function each(callable $fn)
     {
         foreach ($this->_map as $key => $val) {
             $fn($key, $val);
         }
         //return array_walk($this->_map, $fn);
+    }
+
+
+
+    public function transform(callable $fn)
+    {
+        $new_data = [];
+        foreach ($this->_map as $key => $val) {
+            $new_data[$key] = $fn($val);
+        }
+
+        return $new_data;
+    }
+
+
+    public function filter(callable $fn, $key = false)
+    {
+        $new_data = [];
+        foreach ($this->_map as $k => $val) {
+            if ($fn($val)) {
+                if ($key) {
+                    $new_data[$k] = $val;
+                } else {
+                    $new_data[] = $val;
+                }
+
+            }
+        }
+
+        return $new_data;
     }
 
     public function then($node)
@@ -234,5 +391,53 @@ class Jsonq extends JsonManager
         }
 
         return array_map([$this, 'objectToArray'], $obj);
+    }
+
+    public function implode($key, $delimiter = ',')
+    {
+        $implode = [];
+        if (is_string($key)) {
+            return $this->makeImplode($key, $delimiter);
+        }
+
+        if (is_array($key)) {
+            foreach ($key as $k) {
+                $imp = $this->makeImplode($k, $delimiter);
+                $implode[$k] = $imp;
+            }
+
+            return $implode;
+        }
+    }
+
+    protected function makeImplode($key, $delimiter)
+    {
+        $data = array_column($this->_map, $key);
+
+        if (is_array($data)) {
+            return implode($delimiter, $data);
+        }
+
+        return null;
+    }
+
+    public function column($column)
+    {
+        return array_column($this->_map, $column);
+    }
+
+    public function toJson()
+    {
+        return json_encode($this->_map);
+    }
+
+    public function keys()
+    {
+        return array_keys($this->_map);
+    }
+
+    public function values()
+    {
+        return array_values($this->_map);
     }
 }

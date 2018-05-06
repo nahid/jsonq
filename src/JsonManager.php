@@ -14,6 +14,10 @@ class JsonManager
         '<' => 'less',
         '>=' => 'greaterEqual',
         '<=' => 'lessEqual',
+        'in'    => 'in',
+        'notin' => 'notIn',
+        'null' => 'null',
+        'notnull' => 'notNull',
     ];
 
     /**
@@ -267,6 +271,38 @@ class JsonManager
     protected function condLessEqual($key, $val)
     {
         if ($key <= $val) {
+            return true;
+        }
+    }
+
+    protected function condIn($key, $val)
+    {
+        if (is_array($val)) {
+            if (in_array($key, $val)) {
+                return true;
+            }
+        }
+    }
+
+    protected function condNotIn($key, $val)
+    {
+        if (is_array($val)) {
+            if (!in_array($key, $val)) {
+                return true;
+            }
+        }
+    }
+
+    protected function condNull($key, $val)
+    {
+        if (is_null($key) || $key == $val) {
+            return true;
+        }
+    }
+
+    protected function condNotNull($key, $val)
+    {
+        if (!is_null($key) && $key !== $val) {
             return true;
         }
     }
