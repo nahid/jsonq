@@ -44,7 +44,6 @@ class Jsonq extends JsonManager
 
     public function where($key = null, $condition = null, $value = null)
     {
-        //$this->makeWhere('and', $key, $condition, $value);
         $this->_andConditions [] = [
             'key' => $key,
             'condition' => $condition,
@@ -56,7 +55,6 @@ class Jsonq extends JsonManager
 
     public function orWhere($key = null, $condition = null, $value = null)
     {
-        //$this->makeWhere('or', $key, $condition, $value);
         $this->_orConditions [] = [
             'key' => $key,
             'condition' => $condition,
@@ -320,7 +318,6 @@ class Jsonq extends JsonManager
         foreach ($this->_map as $key => $val) {
             $fn($key, $val);
         }
-        //return array_walk($this->_map, $fn);
     }
 
 

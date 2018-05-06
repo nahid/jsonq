@@ -44,7 +44,6 @@ class JsonManager
     public function import($jsonFile = null)
     {
         if (!is_null($jsonFile)) {
-            $this->_db = $jsonFile;
             $this->_path .= $jsonFile;
 
             if (!file_exists($this->_path)) {
@@ -52,7 +51,6 @@ class JsonManager
             }
 
             $this->_map = $this->getDataFromFile($this->_path);
-            //var_dump($this->_map);
             return true;
         }
     }
@@ -167,10 +165,9 @@ class JsonManager
         }
         $andData = $this->fetchAndData();
         $orData = $this->fetchOrData();
-        //var_dump($andData);
-        //var_dump($andData);
+
         $newData = array_replace($andData, $orData);
-        //var_dump($newData);
+
         return $newData;
     }
 
