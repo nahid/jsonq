@@ -7,6 +7,7 @@ require $rootDir . 'vendor/autoload.php';
 use Nahid\JsonQ\Jsonq;
 
 $json=new Jsonq();
+
 $json->import($rootDir . 'data.json');
 
 $result = $json->from('products')

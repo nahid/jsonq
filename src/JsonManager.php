@@ -4,7 +4,7 @@ namespace Nahid\JsonQ;
 
 class JsonManager
 {
-    protected $_node;
+    protected $_node = '';
     protected $_map;
     protected $_path = '';
     protected $_conds = [
@@ -14,6 +14,10 @@ class JsonManager
         '<' => 'less',
         '>=' => 'greaterEqual',
         '<=' => 'lessEqual',
+        'in'    => 'in',
+        'notin' => 'notIn',
+        'null' => 'null',
+        'notnull' => 'notNull',
     ];
 
     /**
@@ -96,7 +100,7 @@ class JsonManager
 
     protected function getData()
     {
-        if (count($this->_node) == 0 || empty($this->_node) || $this->_node == '.') {
+        if (empty($this->_node) || $this->_node == '.') {
             return $this->_map;
         }
 
@@ -264,6 +268,38 @@ class JsonManager
     protected function condLessEqual($key, $val)
     {
         if ($key <= $val) {
+            return true;
+        }
+    }
+
+    protected function condIn($key, $val)
+    {
+        if (is_array($val)) {
+            if (in_array($key, $val)) {
+                return true;
+            }
+        }
+    }
+
+    protected function condNotIn($key, $val)
+    {
+        if (is_array($val)) {
+            if (!in_array($key, $val)) {
+                return true;
+            }
+        }
+    }
+
+    protected function condNull($key, $val)
+    {
+        if (is_null($key) || $key == $val) {
+            return true;
+        }
+    }
+
+    protected function condNotNull($key, $val)
+    {
+        if (!is_null($key) && $key !== $val) {
             return true;
         }
     }
