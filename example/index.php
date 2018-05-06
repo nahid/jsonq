@@ -2,7 +2,7 @@
 
 $rootDir = str_replace('\\', '/', dirname(__DIR__, 1)) . DIRECTORY_SEPARATOR;
 
-require $rootDir .  'vendor/autoload.php';
+require $rootDir . 'vendor/autoload.php';
 
 use Nahid\JsonQ\Jsonq;
 
