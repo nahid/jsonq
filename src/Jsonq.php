@@ -5,17 +5,7 @@ namespace Nahid\JsonQ;
 class Jsonq extends JsonManager
 {
     protected $_file;
-    protected $_node = '';
     protected $_data = array();
-
-    protected $_conditions = [
-        '>' => 'greater',
-        '<' => 'less',
-        '=' => 'equal',
-        '!=' => 'notequal',
-        '>=' => 'greaterequal',
-        '<=' => 'lessequal',
-        ];
 
     /*
         this constructor set main json file path
@@ -150,7 +140,7 @@ class Jsonq extends JsonManager
     public function first($object = true)
     {
         $data = $this->_map;
-        if (count($data > 0)) {
+        if (count($data) > 0) {
             if ($object) {
                 return json_decode(json_encode(reset($data)));
             }

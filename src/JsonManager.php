@@ -4,7 +4,7 @@ namespace Nahid\JsonQ;
 
 class JsonManager
 {
-    protected $_node;
+    protected $_node = '';
     protected $_map;
     protected $_path = '';
     protected $_conds = [
@@ -98,7 +98,7 @@ class JsonManager
 
     protected function getData()
     {
-        if (count($this->_node) == 0 || empty($this->_node) || $this->_node == '.') {
+        if (empty($this->_node) || $this->_node == '.') {
             return $this->_map;
         }
 
