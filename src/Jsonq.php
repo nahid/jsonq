@@ -9,20 +9,30 @@ class Jsonq
 {
     use JsonQueriable;
 
+    /**
+     * store file's realpath
+     * @var string
+     */
     protected $_file;
-    protected $_data = array();
 
-    /*
-        this constructor set main json file path
-        otherwise create it and read file contents
-        and decode as an array and store it in $this->_data
-    */
+
+    /**
+     * Jthis constructor set main json file path
+     * otherwise create it and read file contents
+     * and decode as an array and store it in $this->_data
+     *
+     * @param null $jsonFile
+     * @throws Exceptions\FileNotFoundException
+     * @throws InvalidJsonException
+     */
     public function __construct($jsonFile = null)
     {
-        $path = pathinfo($jsonFile);
+        if (!is_null($jsonFile)) {
+            $path = pathinfo($jsonFile);
 
-        if (!isset($path['extension']) && !is_null($jsonFile)) {
-            throw new InvalidJsonException();
+            if ($path['extension'] != 'json') {
+                throw new InvalidJsonException();
+            }
         }
 
         if (!is_null($jsonFile) && isset($path['extension'])) {
@@ -31,6 +41,13 @@ class Jsonq
         }
     }
 
+    /**
+     * Set node path, where JsonQ start to prepare
+     *
+     * @param null $node
+     * @return $this
+     * @throws NullValueException
+     */
     public function from($node = null)
     {
         if (is_null($node) || $node == '') {
@@ -48,6 +65,10 @@ class Jsonq
         return $this;
     }
 
+    /**
+     * Prepare data from desire conditions
+     * @return Jsonq
+     */
     public function prepare()
     {
         if (count($this->_andConditions) > 0 or count($this->_orConditions) > 0) {
@@ -65,6 +86,12 @@ class Jsonq
         return $this->collect($this->getData());
     }
 
+    /**
+     * getting prepared data
+     *
+     * @param bool $object
+     * @return array|object
+     */
     public function get($object = true)
     {
         if (is_null($this->_map) || is_string($this->_map)) {
@@ -86,11 +113,21 @@ class Jsonq
         return $resultingData;
     }
 
+    /**
+     * count prepared data
+     *
+     * @return int
+     */
     public function count()
     {
         return count($this->_map);
     }
 
+    /**
+     * sum prepared data
+     * @param $property int
+     * @return int
+     */
     public function sum($property = null)
     {
         $sum = 0;
@@ -110,6 +147,12 @@ class Jsonq
         return $sum;
     }
 
+    /**
+     * getting max value from prepared data
+     *
+     * @param $property int
+     * @return int
+     */
     public function max($property = null)
     {
         if (is_null($property)) {
@@ -121,6 +164,12 @@ class Jsonq
         return $max;
     }
 
+    /**
+     * getting min value from prepared data
+     *
+     * @param $property int
+     * @return string
+     */
     public function min($property = null)
     {
         if (is_null($property)) {
@@ -132,6 +181,12 @@ class Jsonq
         return $min;
     }
 
+    /**
+     * getting average value from prepared data
+     *
+     * @param $column int
+     * @return string
+     */
     public function avg($column = null)
     {
         if (is_null($column)) {
@@ -145,6 +200,12 @@ class Jsonq
         return ($total/$count);
     }
 
+    /**
+     * getting first element of prepared data
+     *
+     * @param $object bool
+     * @return object|array|null
+     */
     public function first($object = true)
     {
         $data = $this->_map;
@@ -159,6 +220,12 @@ class Jsonq
         return null;
     }
 
+    /**
+     * getting last element of prepared data
+     *
+     * @param $object bool
+     * @return object|array|null
+     */
     public function last($object = true)
     {
         $data = $this->_map;
@@ -173,6 +240,13 @@ class Jsonq
         return null;
     }
 
+    /**
+     * getting nth number of element of prepared data
+     *
+     * @param $index int
+     * @param $object bool
+     * @return object|array|null
+     */
     public function nth($index, $object = true)
     {
         $data = $this->_map;
@@ -208,6 +282,13 @@ class Jsonq
         return json_decode(json_encode($result), true);
     }
 
+    /**
+     * sorting from prepared data
+     *
+     * @param $property string
+     * @param $order string
+     * @return object|array|null
+     */
     public function sortAs($property, $order = 'asc')
     {
         if (!is_array($this->_map)) {
@@ -240,12 +321,23 @@ class Jsonq
         return $this;
     }
 
+    /**
+     * getting data from desire path
+     *
+     * @param $path string
+     * @return mixed
+     * @throws NullValueException
+     */
     public function find($path)
     {
         return $this->from($path)->prepare()->get();
     }
 
-
+    /**
+     * take action of each element of prepared data
+     *
+     * @param $fn callable
+     */
     public function each(callable $fn)
     {
         foreach ($this->_map as $key => $val) {
@@ -253,8 +345,12 @@ class Jsonq
         }
     }
 
-
-
+    /**
+     * transform prepared data by using callable function
+     *
+     * @param $fn callable
+     * @return object|array
+     */
     public function transform(callable $fn)
     {
         $new_data = [];
@@ -266,6 +362,13 @@ class Jsonq
     }
 
 
+    /**
+     * filtered each element of prepared data
+     *
+     * @param $fn callable
+     * @param $key bool
+     * @return object|array
+     */
     public function filter(callable $fn, $key = false)
     {
         $new_data = [];
@@ -283,6 +386,13 @@ class Jsonq
         return $new_data;
     }
 
+    /**
+     * then method set possion of working data
+     *
+     * @param $node string
+     * @return jsonq
+     * @throws NullValueException
+     */
     public function then($node)
     {
         $this->_map = $this->prepare()->first(false);
@@ -292,6 +402,12 @@ class Jsonq
         return $this;
     }
 
+    /**
+     * import raw JSON data for process
+     *
+     * @param $data string
+     * @return jsonq
+     */
     public function json($data)
     {
         if (is_string($data)) {
@@ -303,6 +419,12 @@ class Jsonq
         return $this;
     }
 
+    /**
+     * import parsed data from raw json
+     *
+     * @param $data array|object
+     * @return jsonq
+     */
     public function collect($data)
     {
         $this->_map = $this->objectToArray($data);
@@ -310,6 +432,12 @@ class Jsonq
         return $this;
     }
 
+    /**
+     * parse object to array
+     *
+     * @param $obj object
+     * @return array|mixed
+     */
     protected function objectToArray($obj)
     {
         if (!is_array($obj) && !is_object($obj)) {
@@ -323,6 +451,13 @@ class Jsonq
         return array_map([$this, 'objectToArray'], $obj);
     }
 
+    /**
+     * implode resulting data from desire key and delimeter
+     *
+     * @param $key string|array
+     * @param $delimiter string
+     * @return string|array
+     */
     public function implode($key, $delimiter = ',')
     {
         $implode = [];
@@ -341,6 +476,13 @@ class Jsonq
         return '';
     }
 
+    /**
+     * process implode from resulting data
+     *
+     * @param $key string
+     * @param $delimiter string
+     * @return string|null
+     */
     protected function makeImplode($key, $delimiter)
     {
         $data = array_column($this->_map, $key);
@@ -352,21 +494,42 @@ class Jsonq
         return null;
     }
 
+    /**
+     * getting specific key's value from prepared data
+     *
+     * @param $column string
+     * @return object|array
+     */
     public function column($column)
     {
         return array_column($this->_map, $column);
     }
 
+    /**
+     * getting raw JSON from prepared data
+     *
+     * @return string
+     */
     public function toJson()
     {
         return json_encode($this->_map);
     }
 
+    /**
+     * getting all keys from prepared data
+     *
+     * @return object|array
+     */
     public function keys()
     {
         return array_keys($this->_map);
     }
 
+    /**
+     * getting all values from prepared data
+     *
+     * @return object|array
+     */
     public function values()
     {
         return array_values($this->_map);

@@ -6,9 +6,27 @@ use Nahid\JsonQ\Exceptions\FileNotFoundException;
 
 trait JsonQueriable
 {
+    /**
+     * store node path
+     * @var string
+     */
     protected $_node = '';
+    /**
+     * contain prepared data for process
+     * @var mixed
+     */
     protected $_map;
+
+    /**
+     * store  file path in string
+     * @var string
+     */
     protected $_path = '';
+
+    /**
+     * map all conditions with methods
+     * @var array
+     */
     protected $_conds = [
         '=' => 'equal',
         '!=' => 'notEqual',
@@ -23,23 +41,30 @@ trait JsonQueriable
     ];
 
     /**
-     * Stores where conditions.
+     * Stores where conditions for AND.
      *
      * @var array
      */
     protected $_andConditions = [];
 
     /**
-     * Stores orWhere conditions.
+     * Stores where conditions for OR.
      *
      * @var array
      */
     protected $_orConditions = [];
 
+    /**
+     * import data from file
+     *
+     * @param $jsonFile string
+     * @return bool
+     * @throws FileNotFoundException
+     */
     public function import($jsonFile = null)
     {
         if (!is_null($jsonFile)) {
-            $this->_path .= $jsonFile;
+            $this->_path = $jsonFile;
 
             if (file_exists($this->_path)) {
                 $this->_map = $this->getDataFromFile($this->_path);
@@ -51,6 +76,11 @@ trait JsonQueriable
     }
 
 
+    /**
+     * check given value is multidimensional array
+     *
+     * @return bool
+     */
     protected function isMultiArray($arr)
     {
         if (!is_array($arr)) {
@@ -62,13 +92,27 @@ trait JsonQueriable
         return isset($arr[0]) && is_array($arr[0]);
     }
 
-    public function isJson($string, $return_map = false)
+    /**
+     * check given value is valid JSON
+     * @param $value string
+     * @param $return_map bool
+     * @return bool|array|string
+     */
+    public function isJson($value, $return_map = false)
     {
-        $data = json_decode($string, true);
+        $data = json_decode($value, true);
 
         return (json_last_error() == JSON_ERROR_NONE) ? ($return_map ? $data : true) : json_last_error_msg();
     }
 
+    /**
+     * read JSON data from file
+     *
+     * @param $file string
+     * @param $type string
+     * @return bool|string|array
+     * @throws FileNotFoundException
+     */
     protected function getDataFromFile($file, $type = 'application/json')
     {
         if (file_exists($file)) {
@@ -88,6 +132,11 @@ trait JsonQueriable
         throw new FileNotFoundException();
     }
 
+    /**
+     * get data from node path
+     *
+     * @return mixed
+     */
     protected function getData()
     {
         if (empty($this->_node) || $this->_node == '.') {
@@ -112,7 +161,7 @@ trait JsonQueriable
                 return false;
             }
 
-            $this->_calculatedData = $this->_data = $map;
+            $this->_calculatedData = $map;
 
             return $map;
         }
@@ -120,6 +169,12 @@ trait JsonQueriable
         return false;
     }
 
+    /**
+     * check the given string is start with the given value
+     * @param $string string
+     * @param $like string
+     * @return bool
+     */
     public function isStrStartWith($string, $like)
     {
         $pattern = '/^'.$like.'/';
@@ -131,6 +186,11 @@ trait JsonQueriable
     }
 
 
+    /**
+     * process AND and OR conditions
+     *
+     * @return array
+     */
     protected function processConditions()
     {
         $data = $this->getData();
@@ -152,6 +212,11 @@ trait JsonQueriable
         return $newData;
     }
 
+    /**
+     * fetch AND conditions resulting data
+     *
+     * @return array
+     */
     protected function fetchAndData()
     {
         $data = $this->getData();
@@ -168,6 +233,12 @@ trait JsonQueriable
         return $calculatedData;
     }
 
+
+    /**
+     * fetch OR conditions resulting data
+     *
+     * @return array
+     */
     protected function fetchOrData()
     {
         $data = $this->getData();
@@ -184,6 +255,14 @@ trait JsonQueriable
         return $calculatedData;
     }
 
+
+    /**
+     * process AND conditions
+     *
+     * @param $record array
+     * @param $conditions array
+     * @return bool
+     */
     protected function filterByAndConditions($record, $conditions)
     {
         $return = false;
@@ -201,6 +280,13 @@ trait JsonQueriable
         return $return;
     }
 
+    /**
+     * process OR conditions
+     *
+     * @param $record array
+     * @param $conditions array
+     * @return bool
+     */
     protected function filterByOrConditions($record, $conditions)
     {
         $return = false;
@@ -216,6 +302,14 @@ trait JsonQueriable
         return $return;
     }
 
+    /**
+     * make WHERE clause
+     *
+     * @param $key string
+     * @param $condition string
+     * @param $value mixed
+     * @return $this
+     */
     public function where($key = null, $condition = null, $value = null)
     {
         //$this->makeWhere('and', $key, $condition, $value);
@@ -228,6 +322,14 @@ trait JsonQueriable
         return $this;
     }
 
+    /**
+     * make WHERE clause with OR
+     *
+     * @param $key string
+     * @param $condition string
+     * @param $value mixed
+     * @return $this
+     */
     public function orWhere($key = null, $condition = null, $value = null)
     {
         //$this->makeWhere('or', $key, $condition, $value);
@@ -241,6 +343,13 @@ trait JsonQueriable
     }
 
 
+    /**
+     * make WHERE IN clause
+     *
+     * @param $key string
+     * @param $value array
+     * @return $this
+     */
     public function whereIn($key = null, $value = [])
     {
         //$this->makeWhere('or', $key, $condition, $value);
@@ -254,6 +363,13 @@ trait JsonQueriable
     }
 
 
+    /**
+     * make WHERE NOT IN clause
+     *
+     * @param $key string
+     * @param $value mixed
+     * @return $this
+     */
     public function whereNotIn($key = null, $value = [])
     {
         //$this->makeWhere('or', $key, $condition, $value);
@@ -267,6 +383,12 @@ trait JsonQueriable
     }
 
 
+    /**
+     * make WHERE NULL clause
+     *
+     * @param $key string
+     * @return $this
+     */
     public function whereNull($key = null)
     {
         //$this->makeWhere('or', $key, $condition, $value);
@@ -279,6 +401,12 @@ trait JsonQueriable
         return $this;
     }
 
+    /**
+     * make WHERE NOT NULL clause
+     *
+     * @param $key string
+     * @return $this
+     */
     public function whereNotNull($key = null)
     {
         //$this->makeWhere('or', $key, $condition, $value);
@@ -291,6 +419,13 @@ trait JsonQueriable
         return $this;
     }
 
+    /**
+     * make Equal condition
+     *
+     * @param $key string
+     * @param $val mixed
+     * @return bool
+     */
     protected function condEqual($key, $val)
     {
         if ($key == $val) {
@@ -298,6 +433,14 @@ trait JsonQueriable
         }
         return false;
     }
+
+    /**
+     * make Not Equal condition
+     *
+     * @param $key string
+     * @param $val mixed
+     * @return bool
+     */
     protected function condNotEqual($key, $val)
     {
         if ($key != $val) {
@@ -305,6 +448,14 @@ trait JsonQueriable
         }
         return false;
     }
+
+    /**
+     * make Greater Than condition
+     *
+     * @param $key string
+     * @param $val mixed
+     * @return bool
+     */
     protected function condGreater($key, $val)
     {
         if ($key > $val) {
@@ -312,6 +463,14 @@ trait JsonQueriable
         }
         return false;
     }
+
+    /**
+     * make Less Than condition
+     *
+     * @param $key string
+     * @param $val mixed
+     * @return bool
+     */
     protected function condLess($key, $val)
     {
         if ($key < $val) {
@@ -319,6 +478,14 @@ trait JsonQueriable
         }
         return false;
     }
+
+    /**
+     * make Greater Equal condition
+     *
+     * @param $key string
+     * @param $val mixed
+     * @return bool
+     */
     protected function condGreaterEqual($key, $val)
     {
         if ($key >= $val) {
@@ -326,6 +493,14 @@ trait JsonQueriable
         }
         return false;
     }
+
+    /**
+     * make Less Equal condition
+     *
+     * @param $key string
+     * @param $val mixed
+     * @return bool
+     */
     protected function condLessEqual($key, $val)
     {
         if ($key <= $val) {
@@ -334,6 +509,13 @@ trait JsonQueriable
         return false;
     }
 
+    /**
+     * make In condition
+     *
+     * @param $key string
+     * @param $val mixed
+     * @return bool
+     */
     protected function condIn($key, $val)
     {
         if (is_array($val)) {
@@ -344,6 +526,13 @@ trait JsonQueriable
         return false;
     }
 
+    /**
+     * make Not In condition
+     *
+     * @param $key string
+     * @param $val mixed
+     * @return bool
+     */
     protected function condNotIn($key, $val)
     {
         if (is_array($val)) {
@@ -354,6 +543,13 @@ trait JsonQueriable
         return false;
     }
 
+    /**
+     * make Null condition
+     *
+     * @param $key string
+     * @param $val mixed
+     * @return bool
+     */
     protected function condNull($key, $val)
     {
         if (is_null($key) || $key == $val) {
@@ -362,6 +558,13 @@ trait JsonQueriable
         return false;
     }
 
+    /**
+     * make Not Null condition
+     *
+     * @param $key string
+     * @param $val mixed
+     * @return bool
+     */
     protected function condNotNull($key, $val)
     {
         if (!is_null($key) && $key !== $val) {
