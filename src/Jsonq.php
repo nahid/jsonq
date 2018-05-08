@@ -261,14 +261,12 @@ class Jsonq
             for ($i = 1; $i<$index; $i++) {
                 $result = next($data);
             }
-
         } else {
             $result = end($data);
 
             for ($i = 1; $i < $idx; $i++) {
                 $result = prev($data);
             }
-
         }
 
         if ($object) {
@@ -375,7 +373,6 @@ class Jsonq
                 } else {
                     $new_data[] = $val;
                 }
-
             }
         }
 

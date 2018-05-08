@@ -188,7 +188,7 @@ trait JsonQueriable
     {
         $data = $this->getData();
         $conds = $this->_conditions;
-        $result = array_filter($data, function($val) use($conds) {
+        $result = array_filter($data, function ($val) use ($conds) {
             $res = false;
             foreach ($conds as $cond) {
                 $tmp = true;
