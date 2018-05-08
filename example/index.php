@@ -8,7 +8,10 @@ $json->import('../data.json');
 //$json->collect([2, 3, 7]);
 
 
-$result = $json->find('users.1.name');
+$result = $json->from('products')
+    ->where('cat', '=', 1)
+    ->prepare()
+    ->get();
             
 
 echo '<pre>';

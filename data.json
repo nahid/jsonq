@@ -16,7 +16,7 @@
 			{"name": "Sylhet", "year": 2011},
 			{"name": "Cox's Bazar", "year": 2012},
 			{"name": "Bandarbar", "year": 2014}
-		]}	
+		]}
 	],
 	"products": [
 		{"id":1, "city": "bsl", "name":"iPhone", "cat":1, "price": 80000},

@@ -2,8 +2,13 @@
 
 namespace Nahid\JsonQ;
 
-class Jsonq extends JsonManager
+use Nahid\JsonQ\Exceptions\InvalidJsonException;
+use Nahid\JsonQ\Exceptions\NullValueException;
+
+class Jsonq
 {
+    use JsonQueriable;
+
     protected $_file;
     protected $_data = array();
 
@@ -17,7 +22,7 @@ class Jsonq extends JsonManager
         $path = pathinfo($jsonFile);
 
         if (!isset($path['extension']) && !is_null($jsonFile)) {
-            parent::__construct($jsonFile);
+            throw new InvalidJsonException();
         }
 
         if (!is_null($jsonFile) && isset($path['extension'])) {
@@ -29,8 +34,9 @@ class Jsonq extends JsonManager
     public function from($node = null)
     {
         if (is_null($node) || $node == '') {
-            return false;
+            throw new NullValueException("Null node exception");
         }
+
         if ($node == '.') {
             $this->_node = $node;
 
@@ -42,82 +48,8 @@ class Jsonq extends JsonManager
         return $this;
     }
 
-    public function where($key = null, $condition = null, $value = null)
-    {
-        //$this->makeWhere('and', $key, $condition, $value);
-        $this->_andConditions [] = [
-            'key' => $key,
-            'condition' => $condition,
-            'value' => $value,
-        ];
 
-        return $this;
-    }
-
-    public function orWhere($key = null, $condition = null, $value = null)
-    {
-        //$this->makeWhere('or', $key, $condition, $value);
-        $this->_orConditions [] = [
-            'key' => $key,
-            'condition' => $condition,
-            'value' => $value,
-        ];
-
-        return $this;
-    }
-
-
-    public function whereIn($key = null, $value = [])
-    {
-        //$this->makeWhere('or', $key, $condition, $value);
-        $this->_andConditions [] = [
-            'key' => $key,
-            'condition' => 'in',
-            'value' => $value,
-        ];
-
-        return $this;
-    }
-
-
-    public function whereNotIn($key = null, $value = [])
-    {
-        //$this->makeWhere('or', $key, $condition, $value);
-        $this->_andConditions [] = [
-            'key' => $key,
-            'condition' => 'notin',
-            'value' => $value,
-        ];
-
-        return $this;
-    }
-
-
-    public function whereNull($key = null)
-    {
-        //$this->makeWhere('or', $key, $condition, $value);
-        $this->_andConditions [] = [
-            'key' => $key,
-            'condition' => 'null',
-            'value' => null,
-        ];
-
-        return $this;
-    }
-
-    public function whereNotNull($key = null)
-    {
-        //$this->makeWhere('or', $key, $condition, $value);
-        $this->_andConditions [] = [
-            'key' => $key,
-            'condition' => 'notnull',
-            'value' => null,
-        ];
-
-        return $this;
-    }
-
-    public function fetch()
+    public function prepare()
     {
         if (count($this->_andConditions) > 0 or count($this->_orConditions) > 0) {
             $calculatedData = $this->processConditions();
@@ -311,7 +243,7 @@ class Jsonq extends JsonManager
 
     public function find($path)
     {
-        return $this->from($path)->fetch()->get();
+        return $this->from($path)->prepare()->get();
     }
 
 
@@ -355,7 +287,7 @@ class Jsonq extends JsonManager
 
     public function then($node)
     {
-        $this->_map = $this->fetch()->first(false);
+        $this->_map = $this->prepare()->first(false);
 
         $this->from($node);
 

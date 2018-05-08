@@ -2,7 +2,9 @@
 
 namespace Nahid\JsonQ;
 
-class JsonManager
+use Nahid\JsonQ\Exceptions\FileNotFoundException;
+
+trait JsonQueriable
 {
     protected $_node = '';
     protected $_map;
@@ -34,33 +36,21 @@ class JsonManager
      */
     protected $_orConditions = [];
 
-    public function __construct($path = null)
-    {
-        if (!empty($path) && !is_null($path)) {
-            $this->_path = $path.'/';
-        }
-    }
-
     public function import($jsonFile = null)
     {
         if (!is_null($jsonFile)) {
             $this->_db = $jsonFile;
             $this->_path .= $jsonFile;
 
-            if (!file_exists($this->_path)) {
-                return false;
+            if (file_exists($this->_path)) {
+                $this->_map = $this->getDataFromFile($this->_path);
+                return true;
             }
-
-            $this->_map = $this->getDataFromFile($this->_path);
-            //var_dump($this->_map);
-            return true;
         }
+
+        throw new FileNotFoundException();
     }
 
-    public function setStoragePath($path)
-    {
-        $this->_path = $path.'/';
-    }
 
     protected function isMultiArray($arr)
     {
@@ -82,9 +72,6 @@ class JsonManager
 
     protected function getDataFromFile($file, $type = 'application/json')
     {
-        if (!$file) {
-            return false;
-        }
         if (file_exists($file)) {
             $opts = [
                 'http' => [
@@ -98,6 +85,8 @@ class JsonManager
 
             return $this->isJson($data, true);
         }
+
+        throw new FileNotFoundException();
     }
 
     protected function getData()
@@ -142,15 +131,6 @@ class JsonManager
         return false;
     }
 
-    public function makeUniqueName($prefix = 'jsonq', $hash = false)
-    {
-        $name = uniqid();
-        if ($hash) {
-            return $prefix.md5($name);
-        }
-
-        return $prefix.$name;
-    }
 
     protected function processConditions()
     {
@@ -167,10 +147,8 @@ class JsonManager
         }
         $andData = $this->fetchAndData();
         $orData = $this->fetchOrData();
-        //var_dump($andData);
-        //var_dump($andData);
+
         $newData = array_replace($andData, $orData);
-        //var_dump($newData);
         return $newData;
     }
 
@@ -238,41 +216,122 @@ class JsonManager
         return $return;
     }
 
+    public function where($key = null, $condition = null, $value = null)
+    {
+        //$this->makeWhere('and', $key, $condition, $value);
+        $this->_andConditions [] = [
+            'key' => $key,
+            'condition' => $condition,
+            'value' => $value,
+        ];
+
+        return $this;
+    }
+
+    public function orWhere($key = null, $condition = null, $value = null)
+    {
+        //$this->makeWhere('or', $key, $condition, $value);
+        $this->_orConditions [] = [
+            'key' => $key,
+            'condition' => $condition,
+            'value' => $value,
+        ];
+
+        return $this;
+    }
+
+
+    public function whereIn($key = null, $value = [])
+    {
+        //$this->makeWhere('or', $key, $condition, $value);
+        $this->_andConditions [] = [
+            'key' => $key,
+            'condition' => 'in',
+            'value' => $value,
+        ];
+
+        return $this;
+    }
+
+
+    public function whereNotIn($key = null, $value = [])
+    {
+        //$this->makeWhere('or', $key, $condition, $value);
+        $this->_andConditions [] = [
+            'key' => $key,
+            'condition' => 'notin',
+            'value' => $value,
+        ];
+
+        return $this;
+    }
+
+
+    public function whereNull($key = null)
+    {
+        //$this->makeWhere('or', $key, $condition, $value);
+        $this->_andConditions [] = [
+            'key' => $key,
+            'condition' => 'null',
+            'value' => null,
+        ];
+
+        return $this;
+    }
+
+    public function whereNotNull($key = null)
+    {
+        //$this->makeWhere('or', $key, $condition, $value);
+        $this->_andConditions [] = [
+            'key' => $key,
+            'condition' => 'notnull',
+            'value' => null,
+        ];
+
+        return $this;
+    }
+
     protected function condEqual($key, $val)
     {
         if ($key == $val) {
             return true;
         }
+        return false;
     }
     protected function condNotEqual($key, $val)
     {
         if ($key != $val) {
             return true;
         }
+        return false;
     }
     protected function condGreater($key, $val)
     {
         if ($key > $val) {
             return true;
         }
+        return false;
     }
     protected function condLess($key, $val)
     {
         if ($key < $val) {
             return true;
         }
+        return false;
     }
     protected function condGreaterEqual($key, $val)
     {
         if ($key >= $val) {
             return true;
         }
+        return false;
     }
     protected function condLessEqual($key, $val)
     {
         if ($key <= $val) {
             return true;
         }
+        return false;
     }
 
     protected function condIn($key, $val)
@@ -282,6 +341,7 @@ class JsonManager
                 return true;
             }
         }
+        return false;
     }
 
     protected function condNotIn($key, $val)
@@ -291,6 +351,7 @@ class JsonManager
                 return true;
             }
         }
+        return false;
     }
 
     protected function condNull($key, $val)
@@ -298,6 +359,7 @@ class JsonManager
         if (is_null($key) || $key == $val) {
             return true;
         }
+        return false;
     }
 
     protected function condNotNull($key, $val)
@@ -305,5 +367,6 @@ class JsonManager
         if (!is_null($key) && $key !== $val) {
             return true;
         }
+        return false;
     }
 }

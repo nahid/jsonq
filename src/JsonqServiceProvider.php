@@ -47,10 +47,10 @@ class JsonqServiceProvider extends ServiceProvider
     {
         $config = $this->app['config'];
         $this->app->singleton('jsonq.manager', function () use ($config) {
-            return new JsonManager($config->get('jsonq.json.storage_path'));
+            return new JsonQueriable($config->get('jsonq.json.storage_path'));
         });
 
-        $this->app->alias('jsonq.manager', JsonManager::class);
+        $this->app->alias('jsonq.manager', JsonQueriable::class);
     }
 
     /**
