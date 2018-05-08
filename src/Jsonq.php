@@ -41,6 +41,11 @@ class Jsonq
         }
     }
 
+    public function __clone()
+    {
+        return $this;
+    }
+
     /**
      * Set node path, where JsonQ start to prepare
      *
@@ -71,6 +76,10 @@ class Jsonq
      */
     public function prepare()
     {
+//        if ($this->hasRelation()) {
+//
+//        }
+
         if (count($this->_conditions) > 0) {
             $calculatedData = $this->processConditions();
 

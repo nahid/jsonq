@@ -47,6 +47,8 @@ trait JsonQueriable
      */
     protected $_conditions = [];
 
+    protected $_relations = [];
+
     /**
      * import data from file
      *
@@ -325,6 +327,36 @@ trait JsonQueriable
         $this->where($key, 'notnull', null);
 
         return $this;
+    }
+
+
+    public function hasMany($node, $key, $condition, $foreign)
+    {
+        $this->makeRelation('hasmany', $node, $key, $condition, $foreign);
+        return $this;
+    }
+
+    protected function makeRelation($type, $node, $key, $condition, $value)
+    {
+        $relation = [
+            'type' => $type,
+            'node' => $node,
+            'key'   => $key,
+            'condition' => $condition,
+            'foreign' => $value
+        ];
+
+        array_push($this->_relations, $relation);
+        dump($this->_relations);
+    }
+
+    public function hasRelation()
+    {
+        if (count($this->_relations) > 0) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

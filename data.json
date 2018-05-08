@@ -19,11 +19,11 @@
 		]}
 	],
 	"products": [
-		{"id":1, "city": "bsl", "name":"iPhone", "cat":1, "price": 80000},
-		{"id":2, "city": null, "name":"macbook pro", "cat": 2, "price": 150000},
-		{"id":3, "city": "dhk", "name":"Redmi 3S Prime", "cat": 1, "price": 12000},
-		{"id":4, "city": null, "name":"Redmi 4X", "cat":1, "price": 15000},
-		{"id":5, "city": "bsl", "name":"macbook air", "cat": 2, "price": 110000},
-		{"id":6, "city": null, "name":"macbook air 1", "cat": 2, "price": 81000}
+		{"id":1, "user_id": 2, "city": "bsl", "name":"iPhone", "cat":1, "price": 80000},
+		{"id":2, "user_id": 2, "city": null, "name":"macbook pro", "cat": 2, "price": 150000},
+		{"id":3, "user_id": 2, "city": "dhk", "name":"Redmi 3S Prime", "cat": 1, "price": 12000},
+		{"id":4, "user_id": 1, "city": null, "name":"Redmi 4X", "cat":1, "price": 15000},
+		{"id":5, "user_id": 1, "city": "bsl", "name":"macbook air", "cat": 2, "price": 110000},
+		{"id":6, "user_id": 2, "city": null, "name":"macbook air 1", "cat": 2, "price": 81000}
 	]
 }

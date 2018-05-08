@@ -11,16 +11,9 @@ $result = '';
     $json=new Jsonq($rootDir . 'data.json');
     $result = $json->from('products')
         ->prepare()
-        ->pipe(function($json, $map) {
-            $data = [];
-            foreach($map as $key => $m) {
-                if ($m['id']%2 == 1) {
-                    $data[] = $m;
-                }
-            }
-
-            return $data;
-        })->get();
+        ->hasOne('users', 'id', '=', 'user_id')
+        ->hasOne('categories', 'id', '=', 'category_id')
+       ->get();
 
 echo '<pre>';
 dump($result);
