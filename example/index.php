@@ -8,22 +8,15 @@ use Nahid\JsonQ\Jsonq;
 
 
 $result = '';
-try {
     $json=new Jsonq($rootDir . 'data.json');
-    try {
-        $result = $json->from('products')
-            ->where('cat', '=', 1)
-            ->prepare()
-            ->get();
-    } catch (\Nahid\JsonQ\Exceptions\NullValueException $e) {
-        echo "Node must have a value";
-    }
-
-} catch (\Nahid\JsonQ\Exceptions\FileNotFoundException $e) {
-    echo "File not found";
-} catch (\Nahid\JsonQ\Exceptions\InvalidJsonException $e) {
-    echo "This file is not valid JSON";
-}
+    $result = $json->from('products')
+        ->where('id', '=', 2)
+        ->orWhere(function($q) {
+            $q->where('city', '=', 'dhk')
+                ->where('price', '=', 12000);
+        })
+        ->prepare()
+        ->get();
 
 echo '<pre>';
 dump($result);

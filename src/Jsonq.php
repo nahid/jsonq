@@ -71,14 +71,10 @@ class Jsonq
      */
     public function prepare()
     {
-        if (count($this->_andConditions) > 0 or count($this->_orConditions) > 0) {
+        if (count($this->_conditions) > 0) {
             $calculatedData = $this->processConditions();
 
-            unset($this->_andConditions);
-            unset($this->_orConditions);
-            $this->_node = '';
-            $this->_andConditions = [];
-            $this->_orConditions = [];
+            $this->_conditions = [];
 
             return $this->collect($calculatedData);
         }

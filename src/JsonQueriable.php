@@ -27,7 +27,7 @@ trait JsonQueriable
      * map all conditions with methods
      * @var array
      */
-    protected $_conds = [
+    protected $_rulesMap = [
         '=' => 'equal',
         '!=' => 'notEqual',
         '>' => 'greater',
@@ -41,18 +41,11 @@ trait JsonQueriable
     ];
 
     /**
-     * Stores where conditions for AND.
+     * Stores all conditions.
      *
      * @var array
      */
-    protected $_andConditions = [];
-
-    /**
-     * Stores where conditions for OR.
-     *
-     * @var array
-     */
-    protected $_orConditions = [];
+    protected $_conditions = [];
 
     /**
      * import data from file
@@ -189,118 +182,31 @@ trait JsonQueriable
     /**
      * process AND and OR conditions
      *
-     * @return array
+     * @return array|string
      */
     protected function processConditions()
     {
         $data = $this->getData();
-        if (!$data) {
-            return null;
-        }
-
-        if (is_string($data)) {
-            return $data;
-        }
-        if (!$this->isMultiArray($data)) {
-            return $data;
-        }
-        $andData = $this->fetchAndData();
-        $orData = $this->fetchOrData();
-
-        $newData = array_replace($andData, $orData);
-
-        return $newData;
-    }
-
-    /**
-     * fetch AND conditions resulting data
-     *
-     * @return array
-     */
-    protected function fetchAndData()
-    {
-        $data = $this->getData();
-        $conditions = $this->_andConditions;
-
-        $calculatedData = [];
-
-        foreach ($data as $id => $record) {
-            if ($this->filterByAndConditions($record, $conditions)) {
-                $calculatedData[$id] = $record;
-            }
-        }
-
-        return $calculatedData;
-    }
-
-
-    /**
-     * fetch OR conditions resulting data
-     *
-     * @return array
-     */
-    protected function fetchOrData()
-    {
-        $data = $this->getData();
-        $conditions = $this->_orConditions;
-
-        $calculatedData = [];
-
-        foreach ($data as $id => $record) {
-            if ($this->filterByOrConditions($record, $conditions)) {
-                $calculatedData[$id] = $record;
-            }
-        }
-
-        return $calculatedData;
-    }
-
-
-    /**
-     * process AND conditions
-     *
-     * @param $record array
-     * @param $conditions array
-     * @return bool
-     */
-    protected function filterByAndConditions($record, $conditions)
-    {
-        $return = false;
-        foreach ($conditions as $rule) {
-            $func = 'cond'.ucfirst($this->_conds[$rule['condition']]);
-            if (method_exists($this, $func)) {
-                if (call_user_func_array([$this,  $func], [$record[$rule['key']], $rule['value']])) {
-                    $return = true;
-                } else {
-                    return false;
+        $conds = $this->_conditions;
+        $result = array_filter($data, function($val) use($conds) {
+            $res = false;
+            foreach ($conds as $cond) {
+                $tmp = true;
+                foreach ($cond as $rule) {
+                    $func = 'cond' . ucfirst($this->_rulesMap[$rule['condition']]);
+                    if (method_exists($this, $func)) {
+                        $return = call_user_func_array([$this, $func], [$val[$rule['key']], $rule['value']]);
+                        $tmp &= $return;
+                    }
                 }
+                $res |= $tmp;
             }
-        }
+            return $res;
+        });
 
-        return $return;
+        return $result;
     }
 
-    /**
-     * process OR conditions
-     *
-     * @param $record array
-     * @param $conditions array
-     * @return bool
-     */
-    protected function filterByOrConditions($record, $conditions)
-    {
-        $return = false;
-        foreach ($conditions as $rule) {
-            $func = 'cond'.ucfirst($this->_conds[$rule['condition']]);
-            if (method_exists($this, $func)) {
-                if (call_user_func_array([$this,  $func], [$record[$rule['key']], $rule['value']])) {
-                    return true;
-                }
-            }
-        }
-
-        return $return;
-    }
 
     /**
      * make WHERE clause
@@ -310,16 +216,12 @@ trait JsonQueriable
      * @param $value mixed
      * @return $this
      */
-    public function where($key = null, $condition = null, $value = null)
+    public function where($key, $condition = null, $value = null)
     {
-        //$this->makeWhere('and', $key, $condition, $value);
-        $this->_andConditions [] = [
-            'key' => $key,
-            'condition' => $condition,
-            'value' => $value,
-        ];
-
-        return $this;
+        if (count($this->_conditions) < 1) {
+            $this->_conditions[] = [];
+        }
+        return $this->makeWhere($key, $condition, $value);
     }
 
     /**
@@ -332,12 +234,40 @@ trait JsonQueriable
      */
     public function orWhere($key = null, $condition = null, $value = null)
     {
-        //$this->makeWhere('or', $key, $condition, $value);
-        $this->_orConditions [] = [
+        if (count($this->_conditions) < 1) {
+            $this->_conditions[] = [];
+        } else {
+            array_push($this->_conditions, []);
+        }
+
+        return $this->makeWhere($key, $condition, $value);
+    }
+
+
+    /**
+     * generator for AND and OR where
+     *
+     * @param $key string
+     * @param $condition string
+     * @param $value mixed
+     * @return $this
+     */
+    protected function makeWhere($key, $condition = null, $value = null)
+    {
+        $current = end($this->_conditions);
+        $index = key($this->_conditions);
+        if (is_callable($key)) {
+            $key($this);
+            return $this;
+        }
+
+        array_push($current, [
             'key' => $key,
             'condition' => $condition,
             'value' => $value,
-        ];
+        ]);
+
+        $this->_conditions[$index] = $current;
 
         return $this;
     }
@@ -352,12 +282,7 @@ trait JsonQueriable
      */
     public function whereIn($key = null, $value = [])
     {
-        //$this->makeWhere('or', $key, $condition, $value);
-        $this->_andConditions [] = [
-            'key' => $key,
-            'condition' => 'in',
-            'value' => $value,
-        ];
+        $this->where($key, 'in', $value);
 
         return $this;
     }
@@ -372,13 +297,7 @@ trait JsonQueriable
      */
     public function whereNotIn($key = null, $value = [])
     {
-        //$this->makeWhere('or', $key, $condition, $value);
-        $this->_andConditions [] = [
-            'key' => $key,
-            'condition' => 'notin',
-            'value' => $value,
-        ];
-
+        $this->where($key, 'notin', $value);
         return $this;
     }
 
@@ -391,13 +310,7 @@ trait JsonQueriable
      */
     public function whereNull($key = null)
     {
-        //$this->makeWhere('or', $key, $condition, $value);
-        $this->_andConditions [] = [
-            'key' => $key,
-            'condition' => 'null',
-            'value' => null,
-        ];
-
+        $this->where($key, 'null', null);
         return $this;
     }
 
@@ -409,12 +322,7 @@ trait JsonQueriable
      */
     public function whereNotNull($key = null)
     {
-        //$this->makeWhere('or', $key, $condition, $value);
-        $this->_andConditions [] = [
-            'key' => $key,
-            'condition' => 'notnull',
-            'value' => null,
-        ];
+        $this->where($key, 'notnull', null);
 
         return $this;
     }
