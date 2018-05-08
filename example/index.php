@@ -10,13 +10,17 @@ use Nahid\JsonQ\Jsonq;
 $result = '';
     $json=new Jsonq($rootDir . 'data.json');
     $result = $json->from('products')
-        ->where('id', '=', 2)
-        ->orWhere(function($q) {
-            $q->where('city', '=', 'dhk')
-                ->where('price', '=', 12000);
-        })
         ->prepare()
-        ->get();
+        ->pipe(function($json, $map) {
+            $data = [];
+            foreach($map as $key => $m) {
+                if ($m['id']%2 == 1) {
+                    $data[] = $m;
+                }
+            }
+
+            return $data;
+        })->get();
 
 echo '<pre>';
 dump($result);

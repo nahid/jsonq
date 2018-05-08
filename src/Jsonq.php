@@ -355,6 +355,30 @@ class Jsonq
         return $new_data;
     }
 
+    /**
+     * pipe send output in next pipe
+     *
+     * @param $fn callable
+     * @param $class string|null
+     * @return object|array
+     */
+    public function pipe(callable $fn, $class = null)
+    {
+        $instance = $this;
+       if (is_callable($fn)) {
+           $this->_map = $fn($this, $this->get(false));
+           return $this;
+       }
+
+       if (is_string($fn) && !is_null($class)) {
+            $instance = new $class;
+       }
+
+       $this->_map = call_user_func_array([$instance, $fn], [$this, $this->get(false)]);
+       return $this;
+
+    }
+
 
     /**
      * filtered each element of prepared data
