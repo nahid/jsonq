@@ -48,7 +48,6 @@ class Jsonq
         return $this;
     }
 
-
     public function prepare()
     {
         if (count($this->_andConditions) > 0 or count($this->_orConditions) > 0) {
@@ -252,7 +251,6 @@ class Jsonq
         foreach ($this->_map as $key => $val) {
             $fn($key, $val);
         }
-        //return array_walk($this->_map, $fn);
     }
 
 

@@ -39,7 +39,6 @@ trait JsonQueriable
     public function import($jsonFile = null)
     {
         if (!is_null($jsonFile)) {
-            $this->_db = $jsonFile;
             $this->_path .= $jsonFile;
 
             if (file_exists($this->_path)) {
@@ -149,6 +148,7 @@ trait JsonQueriable
         $orData = $this->fetchOrData();
 
         $newData = array_replace($andData, $orData);
+
         return $newData;
     }
 
