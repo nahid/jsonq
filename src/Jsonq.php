@@ -4,6 +4,7 @@ namespace Nahid\JsonQ;
 
 use Nahid\JsonQ\Exceptions\ConditionNotAllowedException;
 use Nahid\JsonQ\Exceptions\InvalidJsonException;
+use Nahid\JsonQ\Exceptions\InvalidNodeException;
 use Nahid\JsonQ\Exceptions\NullValueException;
 
 class Jsonq
@@ -166,15 +167,14 @@ class Jsonq
      *
      * @param $column
      * @return $this
+     * @throws InvalidNodeException
      */
     public function groupBy($column)
     {
         $new_data = [];
         foreach ($this->_map as $map) {
-            if (!isset($new_data[$map[$column]])) {
+            if (isset($map[$column])) {
                 $new_data[$map[$column]][] = $map;
-            } else {
-                array_push($new_data[$map[$column]], $map);
             }
         }
 
@@ -393,6 +393,7 @@ class Jsonq
      * @param $path string
      * @return mixed
      * @throws NullValueException
+     * @throws ConditionNotAllowedException
      */
     public function find($path)
     {
@@ -480,6 +481,7 @@ class Jsonq
      * @param $node string
      * @return jsonq
      * @throws NullValueException
+     * @throws ConditionNotAllowedException
      */
     public function then($node)
     {

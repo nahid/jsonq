@@ -10,10 +10,10 @@ use Nahid\JsonQ\Jsonq;
 $result = '';
     $json=new Jsonq($rootDir . 'data.json');
     $json1 = $json->copy();
-    $result = $json->from('products')
-        ->where('id', '=', 7)
-        ->prepare();
+    $result = $json->from('users')
+        ->prepare()
+        ->groupBy('locations');
 
 
 echo '<pre>';
-dump($json->exists());
+dump($json->get());
