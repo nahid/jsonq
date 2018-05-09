@@ -11,13 +11,9 @@ $result = '';
     $json=new Jsonq($rootDir . 'data.json');
     $json1 = $json->copy();
     $result = $json->from('products')
-        ->whereContains('name', 'book')
+        ->where('id', '=', 7)
         ->prepare();
-//        ->reset()
-        //->prepare()
-//        ->reset()
-//        ->groupBy('city')
-        //->get();
+
 
 echo '<pre>';
-dump($json->get());
+dump($json->exists());

@@ -122,9 +122,35 @@ class Jsonq
 
 
     /**
+     * alias of get method
+     *
+     * @param bool $object
+     * @return array|object
+     */
+    public function fetch($object = true)
+    {
+        return $this->get($object);
+    }
+
+
+
+    /**
+     * check data exists in system
+     *
+     * @return bool
+     */
+    public function exists()
+    {
+        return count($this->_map) > 0;
+    }
+
+
+
+    /**
      * reset given data to the $_map
      *
      * @param $data mixed
+     * @return jsonq
      */
     public function reset($data = null)
     {
@@ -600,5 +626,30 @@ class Jsonq
     public function values()
     {
         return array_values($this->_map);
+    }
+
+    /**
+     * getting chunk values from prepared data
+     *
+     * @param $amount
+     * @param $fn
+     * @return object|array|bool
+     */
+    public function chunk($amount, callable $fn = null)
+    {
+        $chunk_value = array_chunk($this->_map, $amount);
+        $chunks = [];
+
+        if (!is_null($fn) && is_callable($fn)) {
+            foreach ($chunk_value as $chunk) {
+                $return = $fn($chunk);
+                if (!is_null($return)) {
+                    $chunks[] = $return;
+                }
+            }
+            return count($chunks)>0?$chunks:null;
+        }
+
+        return $chunk_value;
     }
 }

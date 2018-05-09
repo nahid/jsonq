@@ -45,6 +45,7 @@ trait JsonQueriable
         'endswith' => 'endsWith',
         'match' => 'match',
         'contains' => 'contains',
+        'macro' => 'macro',
     ];
 
     /**
@@ -380,6 +381,20 @@ trait JsonQueriable
         return $this;
     }
 
+    /**
+     * make WHERE CONTAINS clause
+     *
+     * @param $key string
+     * @param $value string
+     * @return $this
+     */
+    public function macro($key, callable $fn)
+    {
+        $this->where($key, 'macro', $fn);
+
+        return $this;
+    }
+
 
 
     // conditions methods
@@ -620,4 +635,22 @@ trait JsonQueriable
 
         return false;
     }
+
+    /**
+     * make Macro condition
+     *
+     * @param $key string
+     * @param $val mixed
+     * @return bool
+     */
+    protected function condMacro($key, $fn)
+    {
+        if (is_callable($fn)) {
+            return $fn($key);
+        }
+
+        return false;
+    }
+
+
 }
