@@ -41,9 +41,14 @@ class Jsonq
         }
     }
 
-    public function __clone()
+    /**
+     * Deep copy current instance
+     *
+     * @return Jsonq
+     */
+    public function copy()
     {
-        return $this;
+        return clone $this;
     }
 
     /**
@@ -76,19 +81,16 @@ class Jsonq
      */
     public function prepare()
     {
-//        if ($this->hasRelation()) {
-//
-//        }
-
         if (count($this->_conditions) > 0) {
             $calculatedData = $this->processConditions();
 
             $this->_conditions = [];
 
-            return $this->collect($calculatedData);
+            $this->_map = $this->objectToArray($calculatedData);
+            return $this;
         }
-
-        return $this->collect($this->getData());
+        $this->_map = $this->objectToArray($this->getData());
+        return $this;
     }
 
     /**
@@ -107,15 +109,54 @@ class Jsonq
             return (object) $this->_map;
         }
         $resultingData = [];
-        foreach ($this->_map as $data) {
+        foreach ($this->_map as $key=>$data) {
             if ($object) {
-                $resultingData[] = (object) $data;
+                $resultingData[$key] = (object) $data;
             } else {
-                $resultingData[] = $data;
+                $resultingData[$key] = $data;
             }
         }
 
         return $resultingData;
+    }
+
+
+    /**
+     * reset given data to the $_map
+     *
+     * @param $data mixed
+     */
+    public function reset($data = null)
+    {
+        if (!is_null($data)) {
+            $this->_baseContents = $data;
+        }
+
+        $this->_map = $this->_baseContents;
+
+        return $this;
+    }
+
+
+    /**
+     * getting group data from specific column
+     * 
+     * @param $column
+     * @return $this
+     */
+    public function groupBy($column)
+    {
+        $new_data = [];
+        foreach ($this->_map as $map) {
+            if (!isset($new_data[$map[$column]])) {
+                $new_data[$map[$column]][] = $map;
+            } else {
+                array_push($new_data[$map[$column]], $map);
+            }
+        }
+
+        $this->_map = $new_data;
+        return $this;
     }
 
     /**
@@ -130,24 +171,23 @@ class Jsonq
 
     /**
      * sum prepared data
-     * @param $property int
+     * @param $column int
      * @return int
      */
-    public function sum($property = null)
+    public function sum($column = null)
     {
         $sum = 0;
-        if (is_null($property)) {
+        if (is_null($column)) {
             $sum = array_sum($this->_map);
         } else {
             foreach ($this->_map as $key => $val) {
-                if (isset($val[$property])) {
-                    if (is_numeric($val[$property])) {
-                        $sum += $val[$property];
+                if (isset($val[$column])) {
+                    if (is_numeric($val[$column])) {
+                        $sum += $val[$column];
                     }
                 }
             }
         }
-
 
         return $sum;
     }
@@ -155,15 +195,15 @@ class Jsonq
     /**
      * getting max value from prepared data
      *
-     * @param $property int
+     * @param $column int
      * @return int
      */
-    public function max($property = null)
+    public function max($column = null)
     {
-        if (is_null($property)) {
+        if (is_null($column)) {
             $max = max($this->_map);
         } else {
-            $max = max(array_column($this->_map, $property));
+            $max = max(array_column($this->_map, $column));
         }
 
         return $max;
@@ -172,15 +212,15 @@ class Jsonq
     /**
      * getting min value from prepared data
      *
-     * @param $property int
+     * @param $column int
      * @return string
      */
-    public function min($property = null)
+    public function min($column = null)
     {
-        if (is_null($property)) {
+        if (is_null($column)) {
             $min = min($this->_map);
         } else {
-            $min = min(array_column($this->_map, $property));
+            $min = min(array_column($this->_map, $column));
         }
 
         return $min;
@@ -288,19 +328,19 @@ class Jsonq
     /**
      * sorting from prepared data
      *
-     * @param $property string
+     * @param $column string
      * @param $order string
      * @return object|array|null
      */
-    public function sortAs($property, $order = 'asc')
+    public function sortAs($column, $order = 'asc')
     {
         if (!is_array($this->_map)) {
             return $this;
         }
 
-        usort($this->_map, function ($a, $b) use ($property, $order) {
-            $val1 = $a[$property];
-            $val2 = $b[$property];
+        usort($this->_map, function ($a, $b) use ($column, $order) {
+            $val1 = $a[$column];
+            $val2 = $b[$column];
             if (is_string($val1)) {
                 $val1 = strtolower($val1);
             }
@@ -309,7 +349,7 @@ class Jsonq
                 $val2 = strtolower($val2);
             }
 
-            if ($a[$property] == $b[$property]) {
+            if ($a[$column] == $b[$column]) {
                 return 0;
             }
             $order = strtolower(trim($order));
@@ -454,6 +494,7 @@ class Jsonq
     public function collect($data)
     {
         $this->_map = $this->objectToArray($data);
+        $this->_baseContents = &$this->_map;
 
         return $this;
     }

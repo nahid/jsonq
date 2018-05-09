@@ -9,11 +9,15 @@ use Nahid\JsonQ\Jsonq;
 
 $result = '';
     $json=new Jsonq($rootDir . 'data.json');
+    $json1 = $json->copy();
     $result = $json->from('products')
-        ->prepare()
-        ->hasOne('users', 'id', '=', 'user_id')
-        ->hasOne('categories', 'id', '=', 'category_id')
-       ->get();
+        ->whereContains('name', 'book')
+        ->prepare();
+//        ->reset()
+        //->prepare()
+//        ->reset()
+//        ->groupBy('city')
+        //->get();
 
 echo '<pre>';
-dump($result);
+dump($json->get());
