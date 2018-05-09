@@ -2,6 +2,7 @@
 
 namespace Nahid\JsonQ;
 
+use Nahid\JsonQ\Exceptions\ConditionNotAllowedException;
 use Nahid\JsonQ\Exceptions\InvalidJsonException;
 use Nahid\JsonQ\Exceptions\NullValueException;
 
@@ -9,11 +10,6 @@ class Jsonq
 {
     use JsonQueriable;
 
-    /**
-     * store file's realpath
-     * @var string
-     */
-    protected $_file;
 
 
     /**
@@ -37,7 +33,6 @@ class Jsonq
 
         if (!is_null($jsonFile) && isset($path['extension'])) {
             $this->import($jsonFile);
-            $this->_file = $this->_path;
         }
     }
 
@@ -77,7 +72,9 @@ class Jsonq
 
     /**
      * Prepare data from desire conditions
+     *
      * @return Jsonq
+     * @throws ConditionNotAllowedException
      */
     public function prepare()
     {
@@ -166,7 +163,7 @@ class Jsonq
 
     /**
      * getting group data from specific column
-     * 
+     *
      * @param $column
      * @return $this
      */
@@ -440,18 +437,17 @@ class Jsonq
     public function pipe(callable $fn, $class = null)
     {
         $instance = $this;
-       if (is_callable($fn)) {
-           $this->_map = $fn($this, $this->get(false));
-           return $this;
-       }
+        if (is_callable($fn)) {
+            $this->_map = $fn($this, $this->get(false));
+            return $this;
+        }
 
-       if (is_string($fn) && !is_null($class)) {
+        if (is_string($fn) && !is_null($class)) {
             $instance = new $class;
-       }
+        }
 
-       $this->_map = call_user_func_array([$instance, $fn], [$this, $this->get(false)]);
-       return $this;
-
+        $this->_map = call_user_func_array([$instance, $fn], [$this, $this->get(false)]);
+        return $this;
     }
 
 

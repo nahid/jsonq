@@ -18,11 +18,20 @@ trait JsonQueriable
      */
     protected $_map;
 
+
     /**
-     * store  file path in string
-     * @var string
+     * Stores base contents.
+     *
+     * @var array
      */
-    protected $_path = '';
+    protected $_baseContents = [];
+
+    /**
+     * Stores all conditions.
+     *
+     * @var array
+     */
+    protected $_conditions = [];
 
     /**
      * map all conditions with methods
@@ -48,29 +57,19 @@ trait JsonQueriable
         'macro' => 'macro',
     ];
 
-    /**
-     * Stores all conditions.
-     *
-     * @var array
-     */
-    protected $_conditions = [];
-
-    protected $_baseContents = [];
 
     /**
      * import data from file
      *
-     * @param $jsonFile string
+     * @param $json_file string
      * @return bool
      * @throws FileNotFoundException
      */
-    public function import($jsonFile = null)
+    public function import($json_file = null)
     {
-        if (!is_null($jsonFile)) {
-            $this->_path = $jsonFile;
-
-            if (file_exists($this->_path)) {
-                $this->_map = $this->getDataFromFile($this->_path);
+        if (!is_null($json_file)) {
+            if (file_exists($json_file)) {
+                $this->_map = $this->getDataFromFile($json_file);
                 $this->_baseContents = $this->_map;
                 return true;
             }
@@ -83,6 +82,7 @@ trait JsonQueriable
     /**
      * check given value is multidimensional array
      *
+     * @param $arr array
      * @return bool
      */
     protected function isMultiArray($arr)
@@ -165,8 +165,6 @@ trait JsonQueriable
                 return false;
             }
 
-            $this->_calculatedData = $map;
-
             return $map;
         }
 
@@ -177,7 +175,7 @@ trait JsonQueriable
     /**
      * process AND and OR conditions
      *
-     * @return array|string
+     * @return array|string|object
      * @throws ConditionNotAllowedException
      */
     protected function processConditions()
@@ -193,7 +191,7 @@ trait JsonQueriable
                     if (method_exists($this, $func)) {
                         $return = call_user_func_array([$this, $func], [$val[$rule['key']], $rule['value']]);
                         $tmp &= $return;
-                    }else {
+                    } else {
                         throw new ConditionNotAllowedException('Exception: ' . $func . ' condition not allowed');
                     }
                 }
@@ -382,10 +380,10 @@ trait JsonQueriable
     }
 
     /**
-     * make WHERE CONTAINS clause
+     * make macro for custom where clause
      *
      * @param $key string
-     * @param $value string
+     * @param $fn callable
      * @return $this
      */
     public function macro($key, callable $fn)
@@ -397,7 +395,7 @@ trait JsonQueriable
 
 
 
-    // conditions methods
+    // condition methods
 
     /**
      * make Equal condition
@@ -601,7 +599,7 @@ trait JsonQueriable
     }
 
     /**
-     * make Ends With condition
+     * make Match condition
      *
      * @param $key string
      * @param $val mixed
@@ -640,10 +638,10 @@ trait JsonQueriable
      * make Macro condition
      *
      * @param $key string
-     * @param $val mixed
+     * @param $fn callable
      * @return bool
      */
-    protected function condMacro($key, $fn)
+    protected function condMacro($key, callable $fn)
     {
         if (is_callable($fn)) {
             return $fn($key);
@@ -651,6 +649,4 @@ trait JsonQueriable
 
         return false;
     }
-
-
 }
