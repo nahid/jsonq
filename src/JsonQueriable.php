@@ -215,7 +215,7 @@ trait JsonQueriable
     public function where($key, $condition = null, $value = null)
     {
         if (count($this->_conditions) < 1) {
-            $this->_conditions[] = [];
+            array_push($this->_conditions, []);
         }
         return $this->makeWhere($key, $condition, $value);
     }
@@ -230,11 +230,7 @@ trait JsonQueriable
      */
     public function orWhere($key = null, $condition = null, $value = null)
     {
-        if (count($this->_conditions) < 1) {
-            $this->_conditions[] = [];
-        } else {
-            array_push($this->_conditions, []);
-        }
+        array_push($this->_conditions, []);
 
         return $this->makeWhere($key, $condition, $value);
     }
