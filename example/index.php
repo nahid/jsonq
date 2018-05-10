@@ -29,3 +29,12 @@ $avg = $json->collect([1, 3, 2])->avg();
 
 echo '<pre>';
 dump($avg);*/
+
+
+/* ----------- nth method example ---------- */
+/*$json=new Jsonq($rootDir . 'data.json');
+$data = $json->collect([1, 2, 3, 4, 5])->nth(-2);
+
+echo '<pre>';
+dump($data);
+*/
