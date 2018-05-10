@@ -161,6 +161,27 @@ trait JsonQueriable
 
         return (json_last_error() == JSON_ERROR_NONE) ? ($return_map ? $data : true) : json_last_error_msg();
     }
+    protected function prepareResult($data, $object)
+    {
+        $output = [];
+        if (is_array($data)) {
+            foreach ($data as $key => $val) {
+                if ($object) {
+                    $output[$key] = (object) $val;
+                } else {
+                    $output[$key] = $val;
+                }
+            }
+        } else {
+            if ($object) {
+                $output = json_decode(json_encode($data));
+            } else {
+                $output = json_decode(json_encode($data), true);
+            }
+        }
+
+        return $output;
+    }
 
     /**
      * read JSON data from file

@@ -37,4 +37,3 @@ $data = $json->collect([1, 2, 3, 4, 5])->nth(-2);
 
 echo '<pre>';
 dump($data);
-*/
