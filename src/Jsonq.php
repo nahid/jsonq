@@ -91,16 +91,8 @@ class Jsonq
         if (!$this->isMultiArray($this->_map)) {
             return (object) $this->_map;
         }
-        $resultingData = [];
-        foreach ($this->_map as $key=>$data) {
-            if ($object) {
-                $resultingData[$key] = (object) $data;
-            } else {
-                $resultingData[$key] = $data;
-            }
-        }
 
-        return $resultingData;
+        return $this->prepareResult($this->_map, $object);
     }
 
 
@@ -286,11 +278,7 @@ class Jsonq
 
         $data = $this->_map;
         if (count($data) > 0) {
-            if ($object) {
-                return json_decode(json_encode(reset($data)));
-            }
-
-            return json_decode(json_encode(reset($data)), true);
+            return $this->prepareResult(reset($data), $object);
         }
 
         return null;
@@ -309,11 +297,7 @@ class Jsonq
 
         $data = $this->_map;
         if (count($data) > 0) {
-            if ($object) {
-                return json_decode(json_encode(end($data)));
-            }
-
-            return json_decode(json_encode(end($data)), true);
+            return $this->prepareResult(end($data), $object);
         }
 
         return null;
@@ -345,11 +329,7 @@ class Jsonq
             $result = $data[$this->count() + $index];
         }
 
-        if ($object) {
-            return json_decode(json_encode($result));
-        }
-
-        return json_decode(json_encode($result), true);
+        return $this->prepareResult($result, $object);
     }
 
     /**
