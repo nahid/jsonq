@@ -125,7 +125,11 @@ class Jsonq
      */
     public function exists()
     {
-        return count($this->_map) > 0;
+        if (!empty($this->_map) && !is_null($this->_map)) {
+            return true;
+        }
+
+        return false;
     }
 
 
