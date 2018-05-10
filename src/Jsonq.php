@@ -330,25 +330,15 @@ class Jsonq
         $data = $this->_map;
         $total_elm = count($data);
         $idx =  abs($index);
-        $result = [];
 
-
-        if (!is_integer($index) || $total_elm < $idx || $index == 0) {
+        if (!is_integer($index) || $total_elm < $idx || $index == 0 || !is_array($this->_map)) {
             return null;
         }
 
         if ($index > 0) {
-            $result = current($data);
-
-            for ($i = 1; $i<$index; $i++) {
-                $result = next($data);
-            }
+            $result = $data[$index - 1];
         } else {
-            $result = end($data);
-
-            for ($i = 1; $i < $idx; $i++) {
-                $result = prev($data);
-            }
+            $result = $data[$this->count() + $index];
         }
 
         if ($object) {
