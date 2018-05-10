@@ -257,13 +257,8 @@ class Jsonq
      */
     public function avg($column = null)
     {
-        if (is_null($column)) {
-            $total = array_sum($this->_map);
-            $count = count($this->_map);
-        } else {
-            $total = $this->sum($column);
-            $count = $this->count();
-        }
+        $total = $this->sum($column);
+        $count = $this->count();
 
         return ($total/$count);
     }
