@@ -33,6 +33,9 @@ trait JsonQueriable
      */
     protected $_conditions = [];
 
+
+    protected $_isProcessed = false;
+
     /**
      * map all conditions with methods
      * @var array
@@ -77,6 +80,56 @@ trait JsonQueriable
 
         throw new FileNotFoundException();
     }
+
+    /**
+     * Prepare data from desire conditions
+     *
+     * @return $this
+     * @throws ConditionNotAllowedException
+     */
+    protected function prepare()
+    {
+        if ($this->_isProcessed) {
+            return $this;
+        }
+        if (count($this->_conditions) > 0) {
+            $calculatedData = $this->processConditions();
+            $this->_map = $this->objectToArray($calculatedData);
+
+            $this->_conditions = [];
+            $this->_node = '';
+            $this->_isProcessed = true;
+            return $this;
+        }
+
+        $this->_isProcessed = true;
+        $this->_map = $this->objectToArray($this->getData());
+        return $this;
+    }
+
+    /**
+     * parse object to array
+     *
+     * @param $obj object
+     * @return array|mixed
+     */
+    protected function objectToArray($obj)
+    {
+        if (!is_array($obj) && !is_object($obj)) {
+            return $obj;
+        }
+
+        if (is_array($obj)) {
+            return $obj;
+        }
+
+        if (is_object($obj)) {
+            $obj = get_object_vars($obj);
+        }
+
+        return array_map([$this, 'objectToArray'], $obj);
+    }
+
 
 
     /**
@@ -214,6 +267,11 @@ trait JsonQueriable
      */
     public function where($key, $condition = null, $value = null)
     {
+        if (!is_null($condition) && is_null($value)) {
+            $value = $condition;
+            $condition = '=';
+        }
+
         if (count($this->_conditions) < 1) {
             array_push($this->_conditions, []);
         }
@@ -230,6 +288,11 @@ trait JsonQueriable
      */
     public function orWhere($key = null, $condition = null, $value = null)
     {
+        if (!is_null($condition) && is_null($value)) {
+            $value = $condition;
+            $condition = '=';
+        }
+
         array_push($this->_conditions, []);
 
         return $this->makeWhere($key, $condition, $value);

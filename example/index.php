@@ -10,25 +10,22 @@ use Nahid\JsonQ\Jsonq;
 $result = '';
 $json=new Jsonq($rootDir . 'data.json');
 $json1 = $json->copy();
-$result = $json->from('users')
-    ->prepare()
-    ->groupBy('locations');
-
-
+$result = $json->from('products');
 echo '<pre>';
-dump($json->get());
+dump($json->sum('price'));
+dump($json->copy()->collect([1,2,6])->avg());
 
 
 /* ----------- avg method example ------------ */
-
+/*
 $json=new Jsonq($rootDir . 'data.json');
-$avg = $json->from('products')->prepare()->avg('price');
+$avg = $json->from('products')->avg('price');
 
 echo '<pre>';
 dump($avg);
 
 $json=new Jsonq();
-$avg = $json->collect([1, 3, 2])->prepare()->avg();
+$avg = $json->collect([1, 3, 2])->avg();
 
 echo '<pre>';
-dump($avg);
+dump($avg);*/

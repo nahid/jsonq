@@ -56,6 +56,8 @@ class Jsonq
      */
     public function from($node = null)
     {
+        $this->_isProcessed = false;
+
         if (is_null($node) || $node == '') {
             throw new NullValueException("Null node exception");
         }
@@ -72,33 +74,16 @@ class Jsonq
     }
 
     /**
-     * Prepare data from desire conditions
-     *
-     * @return Jsonq
-     * @throws ConditionNotAllowedException
-     */
-    public function prepare()
-    {
-        if (count($this->_conditions) > 0) {
-            $calculatedData = $this->processConditions();
-
-            $this->_conditions = [];
-
-            $this->_map = $this->objectToArray($calculatedData);
-            return $this;
-        }
-        $this->_map = $this->objectToArray($this->getData());
-        return $this;
-    }
-
-    /**
      * getting prepared data
      *
      * @param bool $object
      * @return array|object
+     * @throws ConditionNotAllowedException
      */
     public function get($object = true)
     {
+        $this->prepare();
+
         if (is_null($this->_map) || is_string($this->_map)) {
             return $this->_map;
         }
@@ -124,6 +109,7 @@ class Jsonq
      *
      * @param bool $object
      * @return array|object
+     * @throws ConditionNotAllowedException
      */
     public function fetch($object = true)
     {
@@ -168,9 +154,14 @@ class Jsonq
      * @param $column
      * @return $this
      * @throws InvalidNodeException
+     * @throws ConditionNotAllowedException
      */
     public function groupBy($column)
     {
+        if (count($this->_conditions) > 0) {
+            $this->prepare();
+        }
+
         $new_data = [];
         foreach ($this->_map as $map) {
             if (isset($map[$column])) {
@@ -186,9 +177,12 @@ class Jsonq
      * count prepared data
      *
      * @return int
+     * @throws ConditionNotAllowedException
      */
     public function count()
     {
+        $this->prepare();
+
         return count($this->_map);
     }
 
@@ -196,9 +190,12 @@ class Jsonq
      * sum prepared data
      * @param $column int
      * @return int
+     * @throws ConditionNotAllowedException
      */
     public function sum($column = null)
     {
+        $this->prepare();
+
         $sum = 0;
         if (is_null($column)) {
             $sum = array_sum($this->_map);
@@ -220,9 +217,12 @@ class Jsonq
      *
      * @param $column int
      * @return int
+     * @throws ConditionNotAllowedException
      */
     public function max($column = null)
     {
+        $this->prepare();
+
         if (is_null($column)) {
             $max = max($this->_map);
         } else {
@@ -237,9 +237,12 @@ class Jsonq
      *
      * @param $column int
      * @return string
+     * @throws ConditionNotAllowedException
      */
     public function min($column = null)
     {
+        $this->prepare();
+
         if (is_null($column)) {
             $min = min($this->_map);
         } else {
@@ -254,11 +257,14 @@ class Jsonq
      *
      * @param $column int
      * @return string
+     * @throws ConditionNotAllowedException
      */
     public function avg($column = null)
     {
-        $total = $this->sum($column);
+        $this->prepare();
+
         $count = $this->count();
+        $total = $this->sum($column);
 
         return ($total/$count);
     }
@@ -268,9 +274,12 @@ class Jsonq
      *
      * @param $object bool
      * @return object|array|null
+     * @throws ConditionNotAllowedException
      */
     public function first($object = true)
     {
+        $this->prepare();
+
         $data = $this->_map;
         if (count($data) > 0) {
             if ($object) {
@@ -288,9 +297,12 @@ class Jsonq
      *
      * @param $object bool
      * @return object|array|null
+     * @throws ConditionNotAllowedException
      */
     public function last($object = true)
     {
+        $this->prepare();
+
         $data = $this->_map;
         if (count($data) > 0) {
             if ($object) {
@@ -309,9 +321,12 @@ class Jsonq
      * @param $index int
      * @param $object bool
      * @return object|array|null
+     * @throws ConditionNotAllowedException
      */
     public function nth($index, $object = true)
     {
+        $this->prepare();
+
         $data = $this->_map;
         $total_elm = count($data);
         $idx =  abs($index);
@@ -349,9 +364,12 @@ class Jsonq
      * @param $column string
      * @param $order string
      * @return object|array|null
+     * @throws ConditionNotAllowedException
      */
     public function sortAs($column, $order = 'asc')
     {
+        $this->prepare();
+
         if (!is_array($this->_map)) {
             return $this;
         }
@@ -399,9 +417,12 @@ class Jsonq
      * take action of each element of prepared data
      *
      * @param $fn callable
+     * @throws ConditionNotAllowedException
      */
     public function each(callable $fn)
     {
+        $this->prepare();
+
         foreach ($this->_map as $key => $val) {
             $fn($key, $val);
         }
@@ -412,9 +433,12 @@ class Jsonq
      *
      * @param $fn callable
      * @return object|array
+     * @throws ConditionNotAllowedException
      */
     public function transform(callable $fn)
     {
+        $this->prepare();
+
         $new_data = [];
         foreach ($this->_map as $key => $val) {
             $new_data[$key] = $fn($val);
@@ -429,20 +453,20 @@ class Jsonq
      * @param $fn callable
      * @param $class string|null
      * @return object|array
+     * @throws ConditionNotAllowedException
      */
     public function pipe(callable $fn, $class = null)
     {
-        $instance = $this;
-        if (is_callable($fn)) {
-            $this->_map = $fn($this, $this->get(false));
-            return $this;
-        }
+        $this->prepare();
 
         if (is_string($fn) && !is_null($class)) {
             $instance = new $class;
+
+            $this->_map = call_user_func_array([$instance, $fn], [$this]);
+            return $this;
         }
 
-        $this->_map = call_user_func_array([$instance, $fn], [$this, $this->get(false)]);
+        $this->_map = $fn($this);
         return $this;
     }
 
@@ -453,9 +477,12 @@ class Jsonq
      * @param $fn callable
      * @param $key bool
      * @return object|array
+     * @throws ConditionNotAllowedException
      */
     public function filter(callable $fn, $key = false)
     {
+        $this->prepare();
+
         $new_data = [];
         foreach ($this->_map as $k => $val) {
             if ($fn($val)) {
@@ -471,7 +498,7 @@ class Jsonq
     }
 
     /**
-     * then method set possion of working data
+     * then method set position of working data
      *
      * @param $node string
      * @return jsonq
@@ -518,24 +545,6 @@ class Jsonq
         return $this;
     }
 
-    /**
-     * parse object to array
-     *
-     * @param $obj object
-     * @return array|mixed
-     */
-    protected function objectToArray($obj)
-    {
-        if (!is_array($obj) && !is_object($obj)) {
-            return $obj;
-        }
-
-        if (is_object($obj)) {
-            $obj = get_object_vars($obj);
-        }
-
-        return array_map([$this, 'objectToArray'], $obj);
-    }
 
     /**
      * implode resulting data from desire key and delimeter
@@ -543,9 +552,12 @@ class Jsonq
      * @param $key string|array
      * @param $delimiter string
      * @return string|array
+     * @throws ConditionNotAllowedException
      */
     public function implode($key, $delimiter = ',')
     {
+        $this->prepare();
+
         $implode = [];
         if (is_string($key)) {
             return $this->makeImplode($key, $delimiter);
@@ -585,9 +597,12 @@ class Jsonq
      *
      * @param $column string
      * @return object|array
+     * @throws ConditionNotAllowedException
      */
     public function column($column)
     {
+        $this->prepare();
+
         return array_column($this->_map, $column);
     }
 
@@ -595,9 +610,12 @@ class Jsonq
      * getting raw JSON from prepared data
      *
      * @return string
+     * @throws ConditionNotAllowedException
      */
     public function toJson()
     {
+        $this->prepare();
+
         return json_encode($this->_map);
     }
 
@@ -605,9 +623,12 @@ class Jsonq
      * getting all keys from prepared data
      *
      * @return object|array
+     * @throws ConditionNotAllowedException
      */
     public function keys()
     {
+        $this->prepare();
+
         return array_keys($this->_map);
     }
 
@@ -615,9 +636,12 @@ class Jsonq
      * getting all values from prepared data
      *
      * @return object|array
+     * @throws ConditionNotAllowedException
      */
     public function values()
     {
+        $this->prepare();
+
         return array_values($this->_map);
     }
 
@@ -627,9 +651,12 @@ class Jsonq
      * @param $amount
      * @param $fn
      * @return object|array|bool
+     * @throws ConditionNotAllowedException
      */
     public function chunk($amount, callable $fn = null)
     {
+        $this->prepare();
+
         $chunk_value = array_chunk($this->_map, $amount);
         $chunks = [];
 
