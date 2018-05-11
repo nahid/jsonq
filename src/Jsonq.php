@@ -352,7 +352,7 @@ class Jsonq
      * @return object|array|null
      * @throws ConditionNotAllowedException
      */
-    public function sortAs($column, $order = 'asc')
+    public function sortBy($column, $order = 'asc')
     {
         $this->prepare();
 
