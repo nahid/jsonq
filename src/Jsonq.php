@@ -74,6 +74,18 @@ class Jsonq
     }
 
     /**
+     * Alias of from() method
+     *
+     * @param null $node
+     * @return $this
+     * @throws NullValueException
+     */
+    public function at($node = null)
+    {
+        return $this->from($node);
+    }
+
+    /**
      * getting prepared data
      *
      * @param bool $object
@@ -340,7 +352,7 @@ class Jsonq
      * @return object|array|null
      * @throws ConditionNotAllowedException
      */
-    public function sortAs($column, $order = 'asc')
+    public function sortBy($column, $order = 'asc')
     {
         $this->prepare();
 
