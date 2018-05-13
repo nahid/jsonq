@@ -183,6 +183,17 @@ class Jsonq
     }
 
     /**
+     * size is an alias of count
+     *
+     * @return int
+     * @throws ConditionNotAllowedException
+     */
+    public function size()
+    {
+        return $this->count();
+    }
+
+    /**
      * sum prepared data
      * @param $column int
      * @return int
@@ -370,6 +381,23 @@ class Jsonq
                 return ($val1 < $val2) ? -1 : 1;
             }
         });
+
+        return $this;
+    }
+
+    /**
+     * Sort an array value
+     *
+     * @param string $order
+     * @return Jsonq
+     */
+    public function sort($order = 'asc')
+    {
+        if ($order == 'desc') {
+            rsort($this->_map);
+        }else{
+            sort($this->_map);
+        }
 
         return $this;
     }
