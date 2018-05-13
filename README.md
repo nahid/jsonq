@@ -1,8 +1,6 @@
 # php-jsonq
 
-**php-jsonq** is a simple, elegant Javascript package to Query over any type of JSON Data. It'll make your life easier by giving the flavour of an ORM-like query on your JSON.
-
-This package is inspired from the awesome [jsonq](https://github.com/nahid/jsonq) package.
+**JsonQ** is a simple, elegant PHP package to Query over any type of JSON Data. It'll make your life easier by giving the flavour of an ORM-like query on your JSON.
 
 ## Installation
 
@@ -226,7 +224,7 @@ echo $q->from('vendor.name')->get();
 
 If you want to traverse to more deep in hierarchy, you can do it like:
 
-```Javascript
+```php
 $q = new jsonq('data.json');
 echo $q->from('users.5.visits')->get();
 ```
