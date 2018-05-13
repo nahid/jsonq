@@ -100,6 +100,7 @@ trait JsonQueriable
         if ($this->_isProcessed) {
             return $this;
         }
+
         if (count($this->_conditions) > 0) {
             $calculatedData = $this->processConditions();
             $this->_map = $this->objectToArray($calculatedData);

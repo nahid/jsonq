@@ -1,0 +1,29 @@
+{
+	"name": "JsonQ",
+	"description": "A PHP query build for JSON",
+	"vendor":{
+		"name": "Nahid Bin Azhar",
+		"email": "nahid.dns@gmail.com",
+		"website":"https://nahid.im"
+	},
+	"users":[
+		{"id":1, "name":"Johura Akter Sumi", "location": "dhaka"},
+		{"id":2, "name":"Mehedi Hasan Nahid", "location": "barisal"},
+		{"id":3, "name":"Ariful Islam", "location": "barisal"},
+		{"id":4, "name":"Suhel Ahmed", "location": "sylhet"},
+		{"id":5, "name":"Firoz Serniabat", "location": "barisal"},
+		{"id":6, "name":"Musa Jewel", "location": "barisal", "visits": [
+			{"name": "Sylhet", "year": 2011},
+			{"name": "Cox's Bazar", "year": 2012},
+			{"name": "Bandarbar", "year": 2014}
+		]}
+	],
+	"products": [
+		{"id":1, "user_id": 2, "city": "bsl", "name":"iPhone", "cat":1, "price": 80000},
+		{"id":2, "user_id": 2, "city": null, "name":"Macbook Pro", "cat": 2, "price": 150000},
+		{"id":3, "user_id": 2, "city": "dhk", "name":"Redmi 3S Prime", "cat": 1, "price": 12000},
+		{"id":4, "user_id": 1, "city": null, "name":"Redmi 4X", "cat":1, "price": 15000},
+		{"id":5, "user_id": 1, "city": "bsl", "name":"Macbook Air", "cat": 2, "price": 110000},
+		{"id":6, "user_id": 2, "city": null, "name":"Macbook Air Mini", "cat": 2, "price": 105000}
+	]
+}

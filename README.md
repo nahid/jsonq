@@ -118,7 +118,7 @@ dump($result);
 
 //It will print:
 /*
-122000
+365000
 */
 ```
 
@@ -178,19 +178,21 @@ You don't need to call `fetch()` method after this. Because this method will fet
 
 Let's say you want to get the value of _'cities'_ property of your Json Data. You can do it like this:
 
-```Javascript
-const Q = new jsonQ(JsonObject).find('cities');
+```php
+$q = new jsonq('data.json');
+echo $q->find('vendor.name');
 ```
 
 If you want to traverse to more deep in hierarchy, you can do it like:
 
-```Javascript
-const Q = new jsonQ(JsonObject).find('cities.1.name');
+```php
+$q = new jsonq('data.json');
+echo $q->find('vendor.name');
 ```
 
 See a detail example [here](examples/find.js).
 
-### `at(path)`
+### `from(path)`
 
 * `path` (optional) -- the path hierarchy of the data you want to start query from.
 
@@ -200,25 +202,27 @@ Difference between this method and `find()` is that, `find()` method will return
 
 **example:**
 
-Let's say you want to start query over the values of _'users'_ property of your Json Data. You can do it like this:
+Let's say you want to start query over the values of _'vendor.name'_ property of your JSON Data. You can do it like this:
 
-```Javascript
-const Q = new jsonQ(JsonObject).at('users').where('id', '=', 1).fetch();
+```php
+$q = new jsonq('data.json');
+echo $q->from('vendor.name')->get();
 ```
 
 If you want to traverse to more deep in hierarchy, you can do it like:
 
 ```Javascript
-const Q = new jsonQ(JsonObject).at('users.5.visits').where('year', '=', 2011).fetch();
+$q = new jsonq('data.json');
+echo $q->from('users.5.visits')->get();
 ```
 
-See a detail example [here](examples/at.js).
+See a detail example [here](examples/from.php).
 
-### `from(path)`
+### `at(path)`
 
-This is an alias method of `at()` and will behave exactly like that. See example [here](examples/from.js).
+This is an alias method of `from()` and will behave exactly like that. See example [here](examples/from.php).
 
-### `where(key, op, val)`
+### `where(key, condition, val)`
 
 * `key` -- the property name of the data. Or you can pass a Function here to group multiple query inside it. See details in [example](examples/where.js)
 * `val` -- value to be matched with. It can be a _int_, _string_, _bool_ or even _Function_ - depending on the `op`.
@@ -252,19 +256,24 @@ This is an alias method of `at()` and will behave exactly like that. See example
 
 **example:**
 
-Let's say you want to find the _'users'_ who has _id_ of `1`. You can do it like this:
+Let's say you want to find the _'users'_ who has _`id`_ of `1`. You can do it like this:
 
-```Javascript
-const Q = new jsonQ(JsonObject).from('users').where('id', '=', 1).fetch();
+```php
+$q = new jsonq('data.json');
+$res = $q->from('users')->where('id', '=', 1)->get();
 ```
 
 You can add multiple _where_ conditions. It'll give the result by AND-ing between these multiple where conditions.
 
-```Javascript
-const Q = new jsonQ(JsonObject).from('users').where('id', '=', 1).where('location', '=', 'Sylhet').fetch();
+```php
+$q = new jsonq('data.json');
+$res = $q->from('users')
+->where('id', '=', 1)
+->where('location', '=', 'barisal')
+->get();
 ```
 
-See a detail example [here](examples/where.js).
+See a detail example [here](examples/where.php).
 
 ### `orWhere(key, op, val)`
 
@@ -272,11 +281,15 @@ Parameters of `orWhere()` are the same as `where()`. The only difference between
 
 For example, if you want to find the users with _id_ of `1` or `2`, you can do it like this:
 
-```Javascript
-const Q = new jsonQ(JsonObject).from('users').where('id', '=', 1).orWhere('id', '=', 2).fetch();
+```php
+$q = new jsonq('data.json');
+$res = $q->from('users')
+->where('id', '=', 1)
+->orWhere('id', '=', 2)
+->get();
 ```
 
-See detail example [here](examples/orWhere.js).
+See detail example [here](examples/or-where.php).
 
 ### `whereIn(key, val)`
 
@@ -325,20 +338,23 @@ This method will behave like `where(key, 'endswith', val)` method call.
 
 This method will behave like `where(key, 'contains', val)` method call.
 
-### `sum(property)`
+### `sum(column)`
 
-* `property` -- the property name of the data
+* `column` -- the property name of the data
 
 **example:**
 
 Let's say you want to find the sum of the _'price'_ of the _'products'_. You can do it like this:
 
-```Javascript
-const Q = new jsonQ(JsonObject).from('products').sum('price').fetch();
+```php
+$q = new jsonq('data.json');
+$res = $q->from('products')
+->where('cat', '=', 1)
+->sum('price');
 ```
 
-If the data you are aggregating is plain array, you don't need to pass the 'property' parameter.
-See detail example [here](examples/sum.js)
+If the data you are aggregating is plain array, you don't need to pass the 'column' parameter.
+See detail example [here](examples/sum.php)
 
 ### `count()`
 
@@ -348,60 +364,72 @@ It will return the number of elements in the collection.
 
 Let's say you want to find how many elements are in the _'products'_ property. You can do it like:
 
-```Javascript
-const Q = new jsonQ(JsonObject).from('products').count();
+```php
+$q = new jsonq('data.json');
+$res = $q->from('products')
+->where('cat', '=', 1)
+->count();
 ```
 
-See detail example [here](examples/count.js).
+See detail example [here](examples/count.php).
 
 ### `size()`
 
 This is an alias method of `count()`.
 
-### `max(property)`
+### `max(column)`
 
-* `property` -- the property name of the data
+* `column` -- the property name of the data
 
 **example:**
 
 Let's say you want to find the maximum of the _'price'_ of the _'products'_. You can do it like this:
 
-```Javascript
-const Q = new jsonQ(JsonObject).from('products').max('price').fetch();
+```php
+$q = new jsonq('data.json');
+$res = $q->from('products')
+->where('cat', '=', 1)
+->max('price);
 ```
 
-If the data you are querying is plain array, you don't need to pass the 'property' parameter.
-See detail example [here](examples/max.js)
+If the data you are querying is plain array, you don't need to pass the 'column' parameter.
+See detail example [here](examples/max.php)
 
-### `min(property)`
+### `min(column)`
 
-* `property` -- the property name of the data
+* `column` -- the property name of the data
 
 **example:**
 
 Let's say you want to find the minimum of the _'price'_ of the _'products'_. You can do it like this:
 
-```Javascript
-const Q = new jsonQ(JsonObject).from('products').min('price').fetch();
+```php
+$q = new jsonq('data.json');
+$res = $q->from('products')
+->where('cat', '=', 1)
+->min('price');
 ```
 
 If the data you are querying is plain array, you don't need to pass the 'property' parameter.
-See detail example [here](examples/min.js)
+See detail example [here](examples/min.php)
 
-### `avg(property)`
+### `avg(column)`
 
-* `property` -- the property name of the data
+* `column` -- the property name of the data
 
 **example:**
 
 Let's say you want to find the average of the _'price'_ of the _'products'_. You can do it like this:
 
-```Javascript
-const Q = new jsonQ(JsonObject).from('products').avg('price').fetch();
+```php
+$q = new jsonq('data.json');
+$res = $q->from('products')
+->where('cat', '=', 1)
+->avg('price');
 ```
 
-If the data you are querying is plain array, you don't need to pass the 'property' parameter.
-See detail example [here](examples/avg.js)
+If the data you are querying is plain array, you don't need to pass the 'column' parameter.
+See detail example [here](examples/avg.php)
 
 ### `first()`
 
@@ -409,11 +437,14 @@ It will return the first element of the collection.
 
 **example:**
 
-```Javascript
-const Q = new jsonQ(JsonObject).from('products').first();
+```php
+$q = new jsonq('data.json');
+$res = $q->from('products')
+->where('cat', '=', 1)
+->first();
 ```
 
-See detail example [here](examples/first.js).
+See detail example [here](examples/first.php).
 
 ### `last()`
 
@@ -421,11 +452,14 @@ It will return the last element of the collection.
 
 **example:**
 
-```Javascript
-const Q = new jsonQ(JsonObject).from('products').last();
+```php
+$q = new jsonq('data.json');
+$res = $q->from('products')
+->where('cat', '=', 1)
+->last();
 ```
 
-See detail example [here](examples/last.js).
+See detail example [here](examples/last.php).
 
 ### `nth(index)`
 
@@ -435,11 +469,14 @@ It will return the nth element of the collection. If the given index is a **posi
 
 **example:**
 
-```Javascript
-const Q = new jsonQ(JsonObject).from('products').nth(2);
+```php
+$q = new jsonq('data.json');
+$res = $q->from('products')
+->where('cat', '=', 1)
+->nth(2);
 ```
 
-See detail example [here](examples/nth.js).
+See detail example [here](examples/nth.php).
 
 ### `exists()`
 
@@ -449,25 +486,31 @@ It will return **true** if the element is not **empty** or not **null** or not a
 
 Let's say you want to find how many elements are in the _'products'_ property. You can do it like:
 
-```Javascript
-const Q = new jsonQ(JsonObject).from('products').count();
+```php
+$q = new jsonq('data.json');
+$res = $q->from('products')
+->where('cat', '=', 1)
+->exists();
 ```
 
-See detail example [here](examples/exists.js).
+See detail example [here](examples/exists.php).
 
-### `groupBy(property)`
+### `groupBy(column)`
 
-* `property` -- The property by which you want to group the collection.
+* `column` -- The property by which you want to group the collection.
 
 **example:**
 
 Let's say you want to group the _'users'_ data based on the _'location'_ property. You can do it like:
 
-```Javascript
-const Q = new jsonQ(JsonObject).from('users').groupBy('location').fetch();
+```php
+$q = new jsonq('data.json');
+$res = $q->from('users')
+->groupBy('location')
+->get();
 ```
 
-See detail example [here](examples/groupBy.js).
+See detail example [here](examples/group-by.php).
 
 ### `sort(order)`
 
@@ -479,15 +522,17 @@ See detail example [here](examples/groupBy.js).
 
 Let's say you want to sort the _'arr'_ data. You can do it like:
 
-```Javascript
-const Q = new jsonQ(JsonObject).from('arr').sort().fetch();
+```php
+$q = new jsonq();
+$res = $q->collect([7, 5, 9, 1, 3)
+->sort();
 ```
 
-See detail example [here](examples/sort.js).
+See detail example [here](examples/sort.php).
 
-### `sortBy(property, order)`
+### `sortBy(column, order)`
 
-* `property` -- You need to pass the property name on which the sorting will be done.
+* `column` -- You need to pass the column name on which the sorting will be done.
 * `order` -- If you skip the _'order'_ property the data will be by default ordered as **ascending**. You need to pass **'desc'** as the _'order'_ parameter to sort the data in **descending** order. Also, you can pass a compare function in _'order'_ parameter to define your own logic to order the data.
 
 **Note:** This method should be used for Array of Objects. If you want to sort a plain Array you should use the **sort()** method described earlier.
@@ -496,11 +541,14 @@ See detail example [here](examples/sort.js).
 
 Let's say you want to sort the _'price'_ data of _'products'_. You can do it like:
 
-```Javascript
-const Q = new jsonQ(JsonObject).from('products').sortBy('price').fetch();
+```php
+$q = new jsonq('data.json');
+$res = $q->from('products')
+->where('cat', '=', 1)
+->sortBy('price', 'desc');
 ```
 
-See detail example [here](examples/sortBy.js).
+See detail example [here](examples/sort-by.php).
 
 ### `reset(data)`
 
@@ -508,22 +556,22 @@ See detail example [here](examples/sortBy.js).
 
 At any point, you might want to reset the Object instance to a completely different set of data and then query over it. You can use this method in that case.
 
-See a detail example [here](examples/reset.js).
+See a detail example [here](examples/reset.php).
 
 ### `copy()`
 
 It will return a complete clone of the Object instance.
 
-See a detail example [here](examples/copy.js).
+See a detail example [here](examples/copy.php).
 
 ## Bugs and Issues
 
 If you encounter any bugs or issues, feel free to [open an issue at
-github](https://github.com/me-shaon/js-jsonq/issues).
+github](https://github.com/nahid/jsonq/issues).
 
 Also, you can shoot me an email to
-<mailto:shaon.cse81@gmail.com> for hugs or bugs.
+<mailto:nahid.dns@gmail.com> for hugs or bugs.
 
-## Credit
+## Others Platform
 
-Speical thanks to [Nahid Bin Azhar](https://github.com/nahid) for the inspiration and guidance for the package.
+- [js-jsonq](https://github.com/me-shaon/js-jsonq)

@@ -126,9 +126,12 @@ class Jsonq
      * check data exists in system
      *
      * @return bool
+     * @throws ConditionNotAllowedException
      */
     public function exists()
     {
+        $this->prepare();
+
         if (!empty($this->_map) && !is_null($this->_map)) {
             return true;
         }
@@ -166,9 +169,7 @@ class Jsonq
      */
     public function groupBy($column)
     {
-        if (count($this->_conditions) > 0) {
-            $this->prepare();
-        }
+        $this->prepare();
 
         $new_data = [];
         foreach ($this->_map as $map) {
