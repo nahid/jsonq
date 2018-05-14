@@ -11,10 +11,8 @@ class Jsonq
 {
     use JsonQueriable;
 
-
-
     /**
-     * Jthis constructor set main json file path
+     * this constructor set main json file path
      * otherwise create it and read file contents
      * and decode as an array and store it in $this->_data
      *
@@ -107,7 +105,6 @@ class Jsonq
         return $this->prepareResult($this->_map, $object);
     }
 
-
     /**
      * alias of get method
      *
@@ -120,8 +117,6 @@ class Jsonq
         return $this->get($object);
     }
 
-
-
     /**
      * check data exists in system
      *
@@ -132,14 +127,8 @@ class Jsonq
     {
         $this->prepare();
 
-        if (!empty($this->_map) && !is_null($this->_map)) {
-            return true;
-        }
-
-        return false;
+        return (!empty($this->_map) && !is_null($this->_map));
     }
-
-
 
     /**
      * reset given data to the $_map
@@ -158,7 +147,6 @@ class Jsonq
         return $this;
     }
 
-
     /**
      * getting group data from specific column
      *
@@ -171,14 +159,14 @@ class Jsonq
     {
         $this->prepare();
 
-        $new_data = [];
+        $data = [];
         foreach ($this->_map as $map) {
             if (isset($map[$column])) {
-                $new_data[$map[$column]][] = $map;
+                $data[$map[$column]][] = $map;
             }
         }
 
-        $this->_map = $new_data;
+        $this->_map = $data;
         return $this;
     }
 
@@ -485,7 +473,6 @@ class Jsonq
         return $this;
     }
 
-
     /**
      * filtered each element of prepared data
      *
@@ -498,18 +485,18 @@ class Jsonq
     {
         $this->prepare();
 
-        $new_data = [];
+        $data = [];
         foreach ($this->_map as $k => $val) {
             if ($fn($val)) {
                 if ($key) {
-                    $new_data[$k] = $val;
+                    $data[$k] = $val;
                 } else {
-                    $new_data[] = $val;
+                    $data[] = $val;
                 }
             }
         }
 
-        return $new_data;
+        return $data;
     }
 
     /**
@@ -559,7 +546,6 @@ class Jsonq
 
         return $this;
     }
-
 
     /**
      * implode resulting data from desire key and delimeter
@@ -682,7 +668,7 @@ class Jsonq
                     $chunks[] = $return;
                 }
             }
-            return count($chunks)>0?$chunks:null;
+            return count($chunks) > 0 ? $chunks : null;
         }
 
         return $chunk_value;
