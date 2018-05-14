@@ -172,6 +172,8 @@ trait JsonQueriable
     }
     
     /**
+     * prepare data for result
+     *
      * @param mixed $data
      * @param bool $isObject
      * @return array
