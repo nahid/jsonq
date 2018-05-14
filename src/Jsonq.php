@@ -26,13 +26,12 @@ class Jsonq
     {
         if (!is_null($jsonFile)) {
             $path = pathinfo($jsonFile);
-
-            if ($path['extension'] != 'json') {
+            $extansion = isset($path['extension']) ? $path['extension'] : null;
+            
+            if ($extansion != 'json') {
                 throw new InvalidJsonException();
             }
-        }
-
-        if (!is_null($jsonFile) && isset($path['extension'])) {
+            
             $this->import($jsonFile);
         }
     }
