@@ -170,23 +170,21 @@ trait JsonQueriable
 
         return (json_last_error() == JSON_ERROR_NONE) ? ($return_map ? $data : true) : json_last_error_msg();
     }
-    protected function prepareResult($data, $object)
+    
+    /**
+     * @param mixed $data
+     * @param bool $isObject
+     * @return array
+     */
+    protected function prepareResult($data, $isObject)
     {
         $output = [];
         if (is_array($data)) {
             foreach ($data as $key => $val) {
-                if ($object) {
-                    $output[$key] = (object) $val;
-                } else {
-                    $output[$key] = $val;
-                }
+                $output[$key] = $isObject ? (object) $val : $val;
             }
         } else {
-            if ($object) {
-                $output = json_decode(json_encode($data));
-            } else {
-                $output = json_decode(json_encode($data), true);
-            }
+            $output = json_decode(json_encode($data), $isObject);
         }
 
         return $output;
