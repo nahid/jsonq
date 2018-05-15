@@ -271,7 +271,11 @@ trait JsonQueriable
                 foreach ($cond as $rule) {
                     $func = 'cond' . ucfirst($this->_rulesMap[$rule['condition']]);
                     if (method_exists($this, $func)) {
-                        $return = call_user_func_array([$this, $func], [$val[$rule['key']], $rule['value']]);
+                        if (isset($val[$rule['key']])) {
+                            $return = call_user_func_array([$this, $func], [$val[$rule['key']], $rule['value']]);
+                        }else {
+                            $return = false;
+                        }
                         $tmp &= $return;
                     } else {
                         throw new ConditionNotAllowedException('Exception: ' . $func . ' condition not allowed');
