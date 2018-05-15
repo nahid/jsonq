@@ -12,12 +12,12 @@ trait JsonQueriable
      * @var string
      */
     protected $_node = '';
+
     /**
      * contain prepared data for process
      * @var mixed
      */
     protected $_map;
-
 
     /**
      * Stores base contents.
@@ -33,7 +33,9 @@ trait JsonQueriable
      */
     protected $_conditions = [];
 
-
+    /**
+     * @var bool 
+     */
     protected $_isProcessed = false;
 
     /**
@@ -138,8 +140,6 @@ trait JsonQueriable
 
         return array_map([$this, 'objectToArray'], $obj);
     }
-
-
 
     /**
      * check given value is multidimensional array
@@ -254,7 +254,6 @@ trait JsonQueriable
         return false;
     }
 
-
     /**
      * process AND and OR conditions
      *
@@ -285,7 +284,6 @@ trait JsonQueriable
 
         return $result;
     }
-
 
     /**
      * make WHERE clause
@@ -328,7 +326,6 @@ trait JsonQueriable
         return $this->makeWhere($key, $condition, $value);
     }
 
-
     /**
      * generator for AND and OR where
      *
@@ -357,7 +354,6 @@ trait JsonQueriable
         return $this;
     }
 
-
     /**
      * make WHERE IN clause
      *
@@ -372,7 +368,6 @@ trait JsonQueriable
         return $this;
     }
 
-
     /**
      * make WHERE NOT IN clause
      *
@@ -385,7 +380,6 @@ trait JsonQueriable
         $this->where($key, 'notin', $value);
         return $this;
     }
-
 
     /**
      * make WHERE NULL clause
@@ -482,8 +476,6 @@ trait JsonQueriable
         return $this;
     }
 
-
-
     // condition methods
 
     /**
@@ -495,10 +487,7 @@ trait JsonQueriable
      */
     protected function condEqual($key, $val)
     {
-        if ($key == $val) {
-            return true;
-        }
-        return false;
+        return $key == $val;
     }
 
     /**
@@ -510,10 +499,7 @@ trait JsonQueriable
      */
     protected function condExactEqual($key, $val)
     {
-        if ($key === $val) {
-            return true;
-        }
-        return false;
+        return $key === $val;
     }
 
     /**
@@ -525,10 +511,7 @@ trait JsonQueriable
      */
     protected function condNotEqual($key, $val)
     {
-        if ($key != $val) {
-            return true;
-        }
-        return false;
+        return $key != $val;
     }
 
     /**
@@ -540,10 +523,7 @@ trait JsonQueriable
      */
     protected function condNotExactEqual($key, $val)
     {
-        if ($key !== $val) {
-            return true;
-        }
-        return false;
+        return $key !== $val;
     }
 
     /**
@@ -555,10 +535,7 @@ trait JsonQueriable
      */
     protected function condGreater($key, $val)
     {
-        if ($key > $val) {
-            return true;
-        }
-        return false;
+        return $key > $val;
     }
 
     /**
@@ -570,10 +547,7 @@ trait JsonQueriable
      */
     protected function condLess($key, $val)
     {
-        if ($key < $val) {
-            return true;
-        }
-        return false;
+        return $key < $val;
     }
 
     /**
@@ -585,10 +559,7 @@ trait JsonQueriable
      */
     protected function condGreaterEqual($key, $val)
     {
-        if ($key >= $val) {
-            return true;
-        }
-        return false;
+        return $key >= $val;
     }
 
     /**
@@ -600,10 +571,7 @@ trait JsonQueriable
      */
     protected function condLessEqual($key, $val)
     {
-        if ($key <= $val) {
-            return true;
-        }
-        return false;
+        return $key <= $val;
     }
 
     /**
@@ -615,12 +583,7 @@ trait JsonQueriable
      */
     protected function condIn($key, $val)
     {
-        if (is_array($val)) {
-            if (in_array($key, $val)) {
-                return true;
-            }
-        }
-        return false;
+        return (is_array($val) && in_array($key, $val));
     }
 
     /**
@@ -632,12 +595,7 @@ trait JsonQueriable
      */
     protected function condNotIn($key, $val)
     {
-        if (is_array($val)) {
-            if (!in_array($key, $val)) {
-                return true;
-            }
-        }
-        return false;
+        return (is_array($val) && !in_array($key, $val));
     }
 
     /**
@@ -649,10 +607,7 @@ trait JsonQueriable
      */
     protected function condNull($key, $val)
     {
-        if (is_null($key) || $key == $val) {
-            return true;
-        }
-        return false;
+        return (is_null($key) || $key == $val);
     }
 
     /**
@@ -664,10 +619,7 @@ trait JsonQueriable
      */
     protected function condNotNull($key, $val)
     {
-        if (!is_null($key) && $key !== $val) {
-            return true;
-        }
-        return false;
+        return (!is_null($key) && $key !== $val);
     }
 
     /**
@@ -679,8 +631,7 @@ trait JsonQueriable
      */
     protected function condStartsWith($key, $val)
     {
-        $pattern = '/^'.$val.'/';
-        if (preg_match($pattern, $key)) {
+        if (preg_match("/^$val/", $key)) {
             return true;
         }
 
@@ -716,11 +667,7 @@ trait JsonQueriable
      */
     protected function condContains($key, $val)
     {
-        if (strpos($key, $val) !== false) {
-            return true;
-        }
-
-        return false;
+        return (strpos($key, $val) !== false);
     }
 
     /**
