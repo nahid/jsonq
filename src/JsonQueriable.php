@@ -42,7 +42,7 @@ trait JsonQueriable
      * map all conditions with methods
      * @var array
      */
-    protected $_rulesMap = [
+    protected static $_rulesMap = [
         '=' => 'equal',
         'eq' => 'equal',
         '==' => 'exactEqual',
@@ -67,7 +67,6 @@ trait JsonQueriable
         'endswith' => 'endsWith',
         'match' => 'match',
         'contains' => 'contains',
-        'macro' => 'macro',
     ];
 
 
@@ -269,10 +268,18 @@ trait JsonQueriable
             foreach ($conditions as $cond) {
                 $tmp = true;
                 foreach ($cond as $rule) {
-                    $func = 'cond' . ucfirst($this->_rulesMap[$rule['condition']]);
-                    if (method_exists($this, $func)) {
+                    $call_func = [];
+                    if (is_callable(self::$_rulesMap[$rule['condition']])) {
+                        $func = self::$_rulesMap[$rule['condition']];
+                        $call_func = $func;
+                    } else {
+                        $func = 'cond' . ucfirst(self::$_rulesMap[$rule['condition']]);
+                        $call_func[] = $this;
+                        $call_func[] = $func;
+                    }
+                    if (is_callable($func) || method_exists($this, $func) ) {
                         if (isset($val[$rule['key']])) {
-                            $return = call_user_func_array([$this, $func], [$val[$rule['key']], $rule['value']]);
+                            $return = call_user_func_array($call_func, [$val[$rule['key']], $rule['value']]);
                         }else {
                             $return = false;
                         }
@@ -469,15 +476,18 @@ trait JsonQueriable
     /**
      * make macro for custom where clause
      *
-     * @param $key string
+     * @param $name string
      * @param $fn callable
-     * @return $this
+     * @return bool
      */
-    public function macro($key, callable $fn)
+    public static function macro($name, callable $fn)
     {
-        $this->where($key, 'macro', $fn);
+        if (!in_array($name, self::$_rulesMap)) {
+            self::$_rulesMap[$name] = $fn;
+            return true;
+        }
 
-        return $this;
+        return false;
     }
 
     // condition methods
@@ -485,157 +495,157 @@ trait JsonQueriable
     /**
      * make Equal condition
      *
-     * @param $key string
-     * @param $val mixed
+     * @param $val string
+     * @param $payable mixed
      * @return bool
      */
-    protected function condEqual($key, $val)
+    protected function condEqual($val, $payable)
     {
-        return $key == $val;
+        return $val == $payable;
     }
 
     /**
      * make Exact Equal condition
      *
-     * @param $key string
-     * @param $val mixed
+     * @param $val string
+     * @param $payable mixed
      * @return bool
      */
-    protected function condExactEqual($key, $val)
+    protected function condExactEqual($val, $payable)
     {
-        return $key === $val;
+        return $val === $payable;
     }
 
     /**
      * make Not Equal condition
      *
-     * @param $key string
-     * @param $val mixed
+     * @param $val string
+     * @param $payable mixed
      * @return bool
      */
-    protected function condNotEqual($key, $val)
+    protected function condNotEqual($val, $payable)
     {
-        return $key != $val;
+        return $val != $payable;
     }
 
     /**
      * make Not Exact Equal condition
      *
-     * @param $key string
-     * @param $val mixed
+     * @param $val string
+     * @param $payable mixed
      * @return bool
      */
-    protected function condNotExactEqual($key, $val)
+    protected function condNotExactEqual($val, $payable)
     {
-        return $key !== $val;
+        return $val !== $payable;
     }
 
     /**
      * make Greater Than condition
      *
-     * @param $key string
-     * @param $val mixed
+     * @param $val string
+     * @param $payable mixed
      * @return bool
      */
-    protected function condGreater($key, $val)
+    protected function condGreater($val, $payable)
     {
-        return $key > $val;
+        return $val > $payable;
     }
 
     /**
      * make Less Than condition
      *
-     * @param $key string
-     * @param $val mixed
+     * @param $val string
+     * @param $payable mixed
      * @return bool
      */
-    protected function condLess($key, $val)
+    protected function condLess($val, $payable)
     {
-        return $key < $val;
+        return $val < $payable;
     }
 
     /**
      * make Greater Equal condition
      *
-     * @param $key string
-     * @param $val mixed
+     * @param $val string
+     * @param $payable mixed
      * @return bool
      */
-    protected function condGreaterEqual($key, $val)
+    protected function condGreaterEqual($val, $payable)
     {
-        return $key >= $val;
+        return $val >= $payable;
     }
 
     /**
      * make Less Equal condition
      *
-     * @param $key string
-     * @param $val mixed
+     * @param $val string
+     * @param $payable mixed
      * @return bool
      */
-    protected function condLessEqual($key, $val)
+    protected function condLessEqual($val, $payable)
     {
-        return $key <= $val;
+        return $val <= $payable;
     }
 
     /**
      * make In condition
      *
-     * @param $key string
-     * @param $val mixed
+     * @param $val string
+     * @param $payable mixed
      * @return bool
      */
-    protected function condIn($key, $val)
+    protected function condIn($val, $payable)
     {
-        return (is_array($val) && in_array($key, $val));
+        return (is_array($payable) && in_array($val, $payable));
     }
 
     /**
      * make Not In condition
      *
-     * @param $key string
-     * @param $val mixed
+     * @param $val string
+     * @param $payable mixed
      * @return bool
      */
-    protected function condNotIn($key, $val)
+    protected function condNotIn($val, $payable)
     {
-        return (is_array($val) && !in_array($key, $val));
+        return (is_array($val) && !in_array($val, $payable));
     }
 
     /**
      * make Null condition
      *
-     * @param $key string
-     * @param $val mixed
+     * @param $val string
+     * @param $payable mixed
      * @return bool
      */
-    protected function condNull($key, $val)
+    protected function condNull($val, $payable)
     {
-        return (is_null($key) || $key == $val);
+        return (is_null($val) || $val == $payable);
     }
 
     /**
      * make Not Null condition
      *
-     * @param $key string
-     * @param $val mixed
+     * @param $val string
+     * @param $payable mixed
      * @return bool
      */
-    protected function condNotNull($key, $val)
+    protected function condNotNull($val, $payable)
     {
-        return (!is_null($key) && $key !== $val);
+        return (!is_null($val) && $val !== $payable);
     }
 
     /**
      * make Starts With condition
      *
-     * @param $key string
-     * @param $val mixed
+     * @param $val string
+     * @param $payable mixed
      * @return bool
      */
-    protected function condStartsWith($key, $val)
+    protected function condStartsWith($val, $payable)
     {
-        if (preg_match("/^$val/", $key)) {
+        if (preg_match("/^$payable/", $val)) {
             return true;
         }
 
@@ -645,17 +655,17 @@ trait JsonQueriable
     /**
      * make Match condition
      *
-     * @param $key string
-     * @param $val mixed
+     * @param $val string
+     * @param $payable mixed
      * @return bool
      */
-    protected function condMatch($key, $val)
+    protected function condMatch($val, $payable)
     {
-        $val = rtrim($val, '$/');
-        $val = ltrim($val, '/^');
+        $payable = rtrim($payable, '$/');
+        $payable = ltrim($payable, '/^');
 
-        $pattern = '/^'.$val.'$/';
-        if (preg_match($pattern, $key)) {
+        $pattern = '/^'.$payable.'$/';
+        if (preg_match($pattern, $val)) {
             return true;
         }
 
@@ -665,28 +675,12 @@ trait JsonQueriable
     /**
      * make Contains condition
      *
-     * @param $key string
-     * @param $val mixed
+     * @param $val string
+     * @param $payable mixed
      * @return bool
      */
-    protected function condContains($key, $val)
+    protected function condContains($val, $payable)
     {
-        return (strpos($key, $val) !== false);
-    }
-
-    /**
-     * make Macro condition
-     *
-     * @param $key string
-     * @param $fn callable
-     * @return bool
-     */
-    protected function condMacro($key, callable $fn)
-    {
-        if (is_callable($fn)) {
-            return $fn($key);
-        }
-
-        return false;
+        return (strpos($val, $payable) !== false);
     }
 }
