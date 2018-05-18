@@ -26,7 +26,7 @@ $json->json('{"id": 1, "name": "Nahid"}');
 Or from a PHP Array:
 
 ```php
-$this->collect(['id'=>1, 'name'=>'Nahid']);
+$json->collect(['id'=>1, 'name'=>'Nahid']);
 ```
 
 You can start Query your data using the various query methods such as **find**, **where**, **orWhere**, **whereIn**, **whereStartsWith**, **whereEndsWith**, **whereContains** and so on. Also you can aggregate your data after query using **sum**, **count**, **groupBy**, **max**, **min** etc.
