@@ -592,4 +592,4 @@ This package has also different language support.
 
 - [JavaScript JsonQ](https://github.com/me-shaon/js-jsonq) developed by [Ahmed shamim](https://github.com/me-shaon)
 - [Python JsonQ](https://github.com/s1s1ty/py-jsonq) developed by [Shaon Shaonty](https://github.com/s1s1ty)
-- [Go JsonQ](https://github.com/thedevsaddam/go-jsonq) developed by [Saddam H](https://github.com/thedevsaddam) - Upcoming
+- [Go JsonQ](https://github.com/thedevsaddam/gojsonq) developed by [Saddam H](https://github.com/thedevsaddam) - Upcoming

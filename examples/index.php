@@ -18,5 +18,6 @@ $jq = new Jsonq('data.json');
 
 $result = $jq->from('products')
     ->where('cat', 'int', 0)
+
     ->sum('price');
 dump($result);
