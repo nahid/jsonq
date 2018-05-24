@@ -73,15 +73,15 @@ trait JsonQueriable
     /**
      * import data from file
      *
-     * @param $json_file string
+     * @param string $file
      * @return bool
      * @throws FileNotFoundException
      */
-    public function import($json_file = null)
+    public function import($file = null)
     {
-        if (!is_null($json_file)) {
-            if (file_exists($json_file)) {
-                $this->_map = $this->getDataFromFile($json_file);
+        if (!is_null($file)) {
+            if (is_string($file) && file_exists($file)) {
+                $this->_map = $this->getDataFromFile($file);
                 $this->_baseContents = $this->_map;
                 return true;
             }
