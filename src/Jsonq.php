@@ -24,9 +24,9 @@ class Jsonq
     {
         if (!is_null($jsonFile)) {
             $path = pathinfo($jsonFile);
-            $extansion = isset($path['extension']) ? $path['extension'] : null;
+            $extension = isset($path['extension']) ? $path['extension'] : null;
             
-            if ($extansion != 'json') {
+            if ($extension != 'json') {
                 throw new InvalidJsonException();
             }
             
