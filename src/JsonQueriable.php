@@ -4,6 +4,7 @@ namespace Nahid\JsonQ;
 
 use Nahid\JsonQ\Exceptions\ConditionNotAllowedException;
 use Nahid\JsonQ\Exceptions\FileNotFoundException;
+use Nahid\JsonQ\Exceptions\InvalidJsonException;
 
 trait JsonQueriable
 {
@@ -118,9 +119,9 @@ trait JsonQueriable
     }
 
     /**
-     * parse object to array
+     * Parse object to array
      *
-     * @param $obj object
+     * @param object $obj
      * @return array|mixed
      */
     protected function objectToArray($obj)
@@ -141,9 +142,9 @@ trait JsonQueriable
     }
 
     /**
-     * check given value is multidimensional array
+     * Check given value is multidimensional array
      *
-     * @param $arr array
+     * @param array $arr
      * @return bool
      */
     protected function isMultiArray($arr)
@@ -158,16 +159,26 @@ trait JsonQueriable
     }
 
     /**
-     * check given value is valid JSON
-     * @param $value string
-     * @param $return_map bool
-     * @return bool|array|string
+     * Check given value is valid JSON
+     *
+     * @param string $value
+     * @param bool $isReturnMap
+     * 
+     * @return bool|array
      */
-    public function isJson($value, $return_map = false)
+    public function isJson($value, $isReturnMap = false)
     {
+        if (is_array($value) || is_object($value)) {
+            return false;
+        }
+        
         $data = json_decode($value, true);
 
-        return (json_last_error() == JSON_ERROR_NONE) ? ($return_map ? $data : true) : json_last_error_msg();
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return false;
+        }
+        
+        return $isReturnMap ? $data : true;
     }
     
     /**
@@ -209,10 +220,14 @@ trait JsonQueriable
             ];
 
             $context = stream_context_create($opts);
-
             $data = file_get_contents($file, 0, $context);
-
-            return $this->isJson($data, true);
+            $json = $this->isJson($data, true);
+            
+            if (!$json) {
+                throw new InvalidJsonException();
+            }
+            
+            return $json;
         }
 
         throw new FileNotFoundException();

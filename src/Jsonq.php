@@ -523,10 +523,10 @@ class Jsonq
      */
     public function json($data)
     {
-        if (is_string($data)) {
-            if ($json = $this->isJson($data, true)) {
-                return $this->collect($json);
-            }
+        $json = $this->isJson($data, true);
+
+        if ($json) {
+            return $this->collect($json);
         }
 
         return $this;
