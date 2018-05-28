@@ -34,7 +34,7 @@ trait JsonQueriable
     protected $_conditions = [];
 
     /**
-     * @var bool 
+     * @var bool
      */
     protected $_isProcessed = false;
 
@@ -67,6 +67,9 @@ trait JsonQueriable
         'endswith' => 'endsWith',
         'match' => 'match',
         'contains' => 'contains',
+        'dates' => 'dates',
+        'month' => 'month',
+        'year' => 'year',
     ];
 
 
@@ -169,7 +172,7 @@ trait JsonQueriable
 
         return (json_last_error() == JSON_ERROR_NONE) ? ($return_map ? $data : true) : json_last_error_msg();
     }
-    
+
     /**
      * prepare data for result
      *
@@ -474,6 +477,48 @@ trait JsonQueriable
     }
 
     /**
+     * make WHERE DATE clause
+     *
+     * @param $key string
+     * @param $value string
+     * @return $this
+     */
+    public function whereDate($key, $value)
+    {
+        $this->where($key, 'dates', $value);
+
+        return $this;
+    }
+
+    /**
+     * make WHERE month clause
+     *
+     * @param $key string
+     * @param $value string
+     * @return $this
+     */
+    public function whereMonth($key, $value)
+    {
+        $this->where($key, 'month', $value);
+
+        return $this;
+    }
+
+    /**
+     * make WHERE Year clause
+     *
+     * @param $key string
+     * @param $value string
+     * @return $this
+     */
+    public function whereYear($key, $value)
+    {
+        $this->where($key, 'year', $value);
+
+        return $this;
+    }
+
+    /**
      * make macro for custom where clause
      *
      * @param $name string
@@ -653,6 +698,22 @@ trait JsonQueriable
     }
 
     /**
+     * make Ends With condition
+     *
+     * @param $val string
+     * @param $payable mixed
+     * @return bool
+     */
+    protected function condEndsWith($val, $payable)
+    {
+        if (preg_match("/$payable$/", $val)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * make Match condition
      *
      * @param $val string
@@ -682,5 +743,44 @@ trait JsonQueriable
     protected function condContains($val, $payable)
     {
         return (strpos($val, $payable) !== false);
+    }
+
+    /**
+     * make date condition
+     *
+     * @param $val string
+     * @param $payable mixed
+     * @return bool
+     */
+    protected function condDates($val, $payable)
+    {
+        $date = date('Y-m-d', strtotime($val));
+        return $date == $payable;
+    }
+
+    /**
+     * make month condition
+     *
+     * @param $val string
+     * @param $payable mixed
+     * @return bool
+     */
+    protected function condMonth($val, $payable)
+    {
+        $month = date('m', strtotime($val));
+        return $month == $payable;
+    }
+
+    /**
+     * make year condition
+     *
+     * @param $val string
+     * @param $payable mixed
+     * @return bool
+     */
+    protected function condYear($val, $payable)
+    {
+        $year = date('Y', strtotime($val));
+        return $year == $payable;
     }
 }
