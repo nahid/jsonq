@@ -182,7 +182,7 @@ trait JsonQueriable
     }
     
     /**
-     * prepare data for result
+     * Prepare data for result
      *
      * @param mixed $data
      * @param bool $isObject
@@ -203,10 +203,10 @@ trait JsonQueriable
     }
 
     /**
-     * read JSON data from file
+     * Read JSON data from file
      *
-     * @param $file string
-     * @param $type string
+     * @param string $file
+     * @param string $type
      * @return bool|string|array
      * @throws FileNotFoundException
      */
