@@ -4,10 +4,12 @@ namespace Nahid\JsonQ\Tests;
 
 use Nahid\JsonQ\Jsonq;
 use Nahid\JsonQ\Exceptions\FileNotFoundException;
+use Nahid\JsonQ\Exceptions\InvalidJsonException;
 
 class JsonQueriableTest extends AbstractTestCase
 {
     const FILE_NAME = 'data.json';
+    const FILE_INVALID_NAME = 'invalid_data.json';
     
     /**
      * @var Jsonq
@@ -19,53 +21,66 @@ class JsonQueriableTest extends AbstractTestCase
      */
     protected $file;
     
+    /**
+     * @var string
+     */
+    protected $fileInvalid;
+    
+    protected static $testData = [
+        'level1.1' => [
+            'level2.1' => [
+                'level3.1' => 'data31',
+                'level3.2' => 32,
+                'level3.3' => true,
+            ],
+            'level2.2' => [
+                'level3.4' => 'data34',
+                'level3.5' => 35,
+                'level3.6' => false,
+            ],
+            'level2.3' => [
+                'level3.7' => 'data37',
+                'level3.8' => 38,
+                'level3.9' => true,
+            ]
+        ],
+        'level1.2' => [
+            'level2.4' => [
+                'level3.10' => 'data310',
+                'level3.11' => 311,
+                'level3.12' => true,
+            ],
+            'level2.5' => [
+                'level3.13' => 'data313',
+                'level3.14' => 314,
+                'level3.15' => false,
+            ],
+            'level2.6' => [
+                'level3.16' => 'data316',
+                'level3.17' => 317,
+                'level3.18' => true,
+            ]
+        ]
+    ];
+    
     protected function createFile()
     {
-        $json = [
-            'level1.1' => [
-                'level2.1' => [
-                    'level3.1' => 'data31',
-                    'level3.2' => 32,
-                    'level3.3' => true,
-                ],
-                'level2.2' => [
-                    'level3.4' => 'data34',
-                    'level3.5' => 35,
-                    'level3.6' => false,
-                ],
-                'level2.3' => [
-                    'level3.7' => 'data37',
-                    'level3.8' => 38,
-                    'level3.9' => true,
-                ]
-            ],
-            'level1.2' => [
-                'level2.4' => [
-                    'level3.10' => 'data310',
-                    'level3.11' => 311,
-                    'level3.12' => true,
-                ],
-                'level2.5' => [
-                    'level3.13' => 'data313',
-                    'level3.14' => 314,
-                    'level3.15' => false,
-                ],
-                'level2.6' => [
-                    'level3.16' => 'data316',
-                    'level3.17' => 317,
-                    'level3.18' => true,
-                ]
-            ]
-        ];
-        
-        file_put_contents(self::FILE_NAME, json_encode($json));
+        file_put_contents(self::FILE_NAME, json_encode(self::$testData));
         $this->file = self::FILE_NAME;
     }
     
-    protected function removeFile()
+    protected function createInvalidFile()
+    {
+        file_put_contents(self::FILE_INVALID_NAME, 'invalid_data');
+        $this->fileInvalid = self::FILE_INVALID_NAME;
+    }
+    
+    protected function removeFiles()
     {
         unlink(self::FILE_NAME);
+        unlink(self::FILE_INVALID_NAME);
         $this->file = null;
+        $this->fileInvalid = null;
     }
     
     /**
@@ -84,12 +99,13 @@ class JsonQueriableTest extends AbstractTestCase
     protected function setUp()
     {
         $this->createFile();
+        $this->createInvalidFile();
         $this->jsonq = new Jsonq(self::FILE_NAME);
     } 
 
     protected function tearDown()
     {
-        $this->removeFile();
+        $this->removeFiles();
     } 
     
     /**
@@ -144,6 +160,67 @@ class JsonQueriableTest extends AbstractTestCase
     public function testIsJson($input, $isReturnMap, $result = null)
     {
         $this->assertEquals($result, $this->jsonq->isJson($input, $isReturnMap));
+    }
+    
+    /**
+     * @param mixed $input
+     * @param bool $isObject
+     * @param array $result
+     *
+     * @dataProvider prepareResultProvider
+     */
+    public function testPrepareResult($input, $isObject, $result)
+    {
+        $method = $this->makeCallable($this->jsonq, 'prepareResult');
+        
+        $this->assertEquals($result, $method->invokeArgs($this->jsonq, [$input, $isObject]));
+    }
+    
+    /**
+     * @param mixed $file
+     * @param array $result
+     *
+     * @dataProvider getDataFromFileProvider
+     */
+    public function testGetDataFromFile($file, $result)
+    {
+        $method = $this->makeCallable($this->jsonq, 'getDataFromFile');
+        
+        if (is_string($result)) {
+            $this->expectException($result);
+            $method->invokeArgs($this->jsonq, [$file]);
+        } else {
+            $this->assertEquals($result, $method->invokeArgs($this->jsonq, [$file]));
+        }
+    }
+    
+    public function getDataFromFileProvider()
+    {
+        return [
+            [self::FILE_NAME, self::$testData], 
+            [null, FileNotFoundException::class], 
+            [true, FileNotFoundException::class], 
+            [1, FileNotFoundException::class], 
+            ['invalid_path.json', FileNotFoundException::class],
+            [self::FILE_INVALID_NAME, InvalidJsonException::class]
+        ];
+    }
+    
+    public function prepareResultProvider()
+    {
+        $obj = new \stdClass();
+        $obj->scalar = 'test';
+        $obj2 = new \stdClass();
+        $obj2->scalar = 'test2';
+        
+        return [
+            [['test', 'test2'], false, ['test', 'test2']],
+            [['key1' => 'test','key2' =>  'test2'], false, ['key1' => 'test','key2' => 'test2']],
+            [['test', 'test2'], true, [$obj, $obj2]],
+            [['key1' => 'test','key2' =>  'test2'], true, ['key1' => $obj, 'key2' => $obj2]],
+            ['["test", "test2"]', false, '["test", "test2"]'],
+            ['["test", "test2"]', true, '["test", "test2"]']
+        ];
     }
     
     public function isJsonProvider()
