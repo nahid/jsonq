@@ -132,7 +132,7 @@ class Jsonq
     /**
      * reset given data to the $_map
      *
-     * @param $data mixed
+     * @param mixed $data
      * @return jsonq
      */
     public function reset($data = null)
@@ -149,9 +149,8 @@ class Jsonq
     /**
      * getting group data from specific column
      *
-     * @param $column
+     * @param string $column
      * @return $this
-     * @throws InvalidNodeException
      * @throws ConditionNotAllowedException
      */
     public function groupBy($column)
@@ -195,7 +194,7 @@ class Jsonq
 
     /**
      * sum prepared data
-     * @param $column int
+     * @param int $column
      * @return int
      * @throws ConditionNotAllowedException
      */
@@ -222,7 +221,7 @@ class Jsonq
     /**
      * getting max value from prepared data
      *
-     * @param $column int
+     * @param int $column
      * @return int
      * @throws ConditionNotAllowedException
      */
@@ -242,7 +241,7 @@ class Jsonq
     /**
      * getting min value from prepared data
      *
-     * @param $column int
+     * @param int $column
      * @return string
      * @throws ConditionNotAllowedException
      */
@@ -262,7 +261,7 @@ class Jsonq
     /**
      * getting average value from prepared data
      *
-     * @param $column int
+     * @param int $column
      * @return string
      * @throws ConditionNotAllowedException
      */
@@ -279,7 +278,7 @@ class Jsonq
     /**
      * getting first element of prepared data
      *
-     * @param $object bool
+     * @param bool $object
      * @return object|array|null
      * @throws ConditionNotAllowedException
      */
@@ -298,7 +297,7 @@ class Jsonq
     /**
      * getting last element of prepared data
      *
-     * @param $object bool
+     * @param bool $object
      * @return object|array|null
      * @throws ConditionNotAllowedException
      */
@@ -317,8 +316,8 @@ class Jsonq
     /**
      * getting nth number of element of prepared data
      *
-     * @param $index int
-     * @param $object bool
+     * @param int $index
+     * @param bool $object
      * @return object|array|null
      * @throws ConditionNotAllowedException
      */
@@ -346,8 +345,8 @@ class Jsonq
     /**
      * sorting from prepared data
      *
-     * @param $column string
-     * @param $order string
+     * @param string $column
+     * @param string $order
      * @return object|array|null
      * @throws ConditionNotAllowedException
      */
@@ -405,7 +404,7 @@ class Jsonq
     /**
      * getting data from desire path
      *
-     * @param $path string
+     * @param string $path
      * @return mixed
      * @throws NullValueException
      * @throws ConditionNotAllowedException
@@ -418,7 +417,7 @@ class Jsonq
     /**
      * take action of each element of prepared data
      *
-     * @param $fn callable
+     * @param callable $fn
      * @throws ConditionNotAllowedException
      */
     public function each(callable $fn)
@@ -433,7 +432,7 @@ class Jsonq
     /**
      * transform prepared data by using callable function
      *
-     * @param $fn callable
+     * @param callable $fn
      * @return object|array
      * @throws ConditionNotAllowedException
      */
@@ -452,8 +451,8 @@ class Jsonq
     /**
      * pipe send output in next pipe
      *
-     * @param $fn callable
-     * @param $class string|null
+     * @param callable $fn
+     * @param string|null $class
      * @return object|array
      * @throws ConditionNotAllowedException
      */
@@ -475,8 +474,8 @@ class Jsonq
     /**
      * filtered each element of prepared data
      *
-     * @param $fn callable
-     * @param $key bool
+     * @param callable $fn
+     * @param bool $key
      * @return object|array
      * @throws ConditionNotAllowedException
      */
@@ -501,7 +500,7 @@ class Jsonq
     /**
      * then method set position of working data
      *
-     * @param $node string
+     * @param string $node
      * @return jsonq
      * @throws NullValueException
      * @throws ConditionNotAllowedException
@@ -518,7 +517,7 @@ class Jsonq
     /**
      * import raw JSON data for process
      *
-     * @param $data string
+     * @param string $data
      * @return jsonq
      */
     public function json($data)
@@ -535,7 +534,7 @@ class Jsonq
     /**
      * import parsed data from raw json
      *
-     * @param $data array|object
+     * @param array|object $data
      * @return jsonq
      */
     public function collect($data)
@@ -549,8 +548,8 @@ class Jsonq
     /**
      * implode resulting data from desire key and delimeter
      *
-     * @param $key string|array
-     * @param $delimiter string
+     * @param string|array $key
+     * @param string $delimiter
      * @return string|array
      * @throws ConditionNotAllowedException
      */
@@ -577,8 +576,8 @@ class Jsonq
     /**
      * process implode from resulting data
      *
-     * @param $key string
-     * @param $delimiter string
+     * @param string $key
+     * @param string $delimiter
      * @return string|null
      */
     protected function makeImplode($key, $delimiter)
@@ -595,7 +594,7 @@ class Jsonq
     /**
      * getting specific key's value from prepared data
      *
-     * @param $column string
+     * @param string $column
      * @return object|array
      * @throws ConditionNotAllowedException
      */
@@ -648,7 +647,7 @@ class Jsonq
     /**
      * getting chunk values from prepared data
      *
-     * @param $amount
+     * @param int $amount
      * @param $fn
      * @return object|array|bool
      * @throws ConditionNotAllowedException
