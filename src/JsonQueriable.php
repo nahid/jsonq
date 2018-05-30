@@ -5,6 +5,7 @@ namespace Nahid\JsonQ;
 use Nahid\JsonQ\Exceptions\ConditionNotAllowedException;
 use Nahid\JsonQ\Exceptions\FileNotFoundException;
 use Nahid\JsonQ\Exceptions\InvalidJsonException;
+use Nahid\JsonQ\Condition;
 
 trait JsonQueriable
 {
@@ -46,12 +47,12 @@ trait JsonQueriable
     protected static $_rulesMap = [
         '=' => 'equal',
         'eq' => 'equal',
-        '==' => 'exactEqual',
-        'seq' => 'exactEqual',
+        '==' => 'strictEqual',
+        'seq' => 'strictEqual',
         '!=' => 'notEqual',
         'neq' => 'notEqual',
-        '!==' => 'notExactEqual',
-        'sneq' => 'notExactEqual',
+        '!==' => 'strictNotEqual',
+        'sneq' => 'strictNotEqual',
         '>' => 'greater',
         'gt' => 'greater',
         '<' => 'less',
@@ -62,15 +63,15 @@ trait JsonQueriable
         'lte' => 'lessEqual',
         'in'    => 'in',
         'notin' => 'notIn',
-        'null' => 'null',
-        'notnull' => 'notNull',
-        'startswith' => 'startsWith',
-        'endswith' => 'endsWith',
+        'null' => 'isNull',
+        'notnull' => 'isNotNull',
+        'startswith' => 'startWith',
+        'endswith' => 'endWith',
         'match' => 'match',
         'contains' => 'contains',
-        'dates' => 'dates',
-        'month' => 'month',
-        'year' => 'year',
+        'dates' => 'dateEqual',
+        'month' => 'monthEqual',
+        'year' => 'yearEqual',
     ];
 
 
@@ -248,7 +249,7 @@ trait JsonQueriable
         if (empty($this->_node) || $this->_node == '.') {
             return $this->_map;
         }
-
+        
         if ($this->_node) {
             $terminate = false;
             $map = $this->_map;
@@ -288,25 +289,18 @@ trait JsonQueriable
             foreach ($conditions as $cond) {
                 $tmp = true;
                 foreach ($cond as $rule) {
-                    $call_func = [];
-                    if (is_callable(self::$_rulesMap[$rule['condition']])) {
-                        $func = self::$_rulesMap[$rule['condition']];
-                        $call_func = $func;
-                    } else {
-                        $func = 'cond' . ucfirst(self::$_rulesMap[$rule['condition']]);
-                        $call_func[] = $this;
-                        $call_func[] = $func;
-                    }
-                    if (is_callable($func) || method_exists($this, $func) ) {
-                        if (isset($val[$rule['key']])) {
-                            $return = call_user_func_array($call_func, [$val[$rule['key']], $rule['value']]);
-                        } else {
-                            $return = false;
+                    $function = self::$_rulesMap[$rule['condition']];
+                    if (!is_callable($function)) {
+                        if (!method_exists(Condition::class, $function)) {
+                            throw new ConditionNotAllowedException("Exception: $function condition not allowed");
                         }
-                        $tmp &= $return;
-                    } else {
-                        throw new ConditionNotAllowedException('Exception: ' . $func . ' condition not allowed');
+                        
+                        $function = [Condition::class, $function];
                     }
+                    
+                    $key = $rule['key'];
+                    $return = isset($val[$key]) ? call_user_func_array($function, [$val[$key], $rule['value']]) : false;
+                    $tmp &= $return;
                 }
                 $res |= $tmp;
             }
@@ -550,254 +544,5 @@ trait JsonQueriable
         }
 
         return false;
-    }
-
-    // condition methods
-
-    /**
-     * make Equal condition
-     *
-     * @param string $val
-     * @param mixed $payable
-     * @return bool
-     */
-    protected function condEqual($val, $payable)
-    {
-        return $val == $payable;
-    }
-
-    /**
-     * make Exact Equal condition
-     *
-     * @param string $val
-     * @param mixed $payable
-     * @return bool
-     */
-    protected function condExactEqual($val, $payable)
-    {
-        return $val === $payable;
-    }
-
-    /**
-     * make Not Equal condition
-     *
-     * @param string $val
-     * @param mixed $payable
-     * @return bool
-     */
-    protected function condNotEqual($val, $payable)
-    {
-        return $val != $payable;
-    }
-
-    /**
-     * make Not Exact Equal condition
-     *
-     * @param string $val
-     * @param mixed $payable
-     * @return bool
-     */
-    protected function condNotExactEqual($val, $payable)
-    {
-        return $val !== $payable;
-    }
-
-    /**
-     * make Greater Than condition
-     *
-     * @param string $val
-     * @param mixed $payable
-     * @return bool
-     */
-    protected function condGreater($val, $payable)
-    {
-        return $val > $payable;
-    }
-
-    /**
-     * make Less Than condition
-     *
-     * @param string $val
-     * @param mixed $payable
-     * @return bool
-     */
-    protected function condLess($val, $payable)
-    {
-        return $val < $payable;
-    }
-
-    /**
-     * make Greater Equal condition
-     *
-     * @param string $val
-     * @param mixed $payable
-     * @return bool
-     */
-    protected function condGreaterEqual($val, $payable)
-    {
-        return $val >= $payable;
-    }
-
-    /**
-     * make Less Equal condition
-     *
-     * @param string $val
-     * @param mixed $payable
-     * @return bool
-     */
-    protected function condLessEqual($val, $payable)
-    {
-        return $val <= $payable;
-    }
-
-    /**
-     * make In condition
-     *
-     * @param string $val
-     * @param mixed $payable
-     * @return bool
-     */
-    protected function condIn($val, $payable)
-    {
-        return (is_array($payable) && in_array($val, $payable));
-    }
-
-    /**
-     * make Not In condition
-     *
-     * @param string $val
-     * @param mixed $payable
-     * @return bool
-     */
-    protected function condNotIn($val, $payable)
-    {
-        return (is_array($val) && !in_array($val, $payable));
-    }
-
-    /**
-     * make Null condition
-     *
-     * @param string $val
-     * @param mixed $payable
-     * @return bool
-     */
-    protected function condNull($val, $payable)
-    {
-        return (is_null($val) || $val == $payable);
-    }
-
-    /**
-     * make Not Null condition
-     *
-     * @param string $val
-     * @param mixed $payable
-     * @return bool
-     */
-    protected function condNotNull($val, $payable)
-    {
-        return (!is_null($val) && $val !== $payable);
-    }
-
-    /**
-     * make Starts With condition
-     *
-     * @param string $val
-     * @param mixed $payable
-     * @return bool
-     */
-    protected function condStartsWith($val, $payable)
-    {
-        if (preg_match("/^$payable/", $val)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * make Ends With condition
-     *
-     * @param string $val
-     * @param mixed $payable
-     * @return bool
-     */
-    protected function condEndsWith($val, $payable)
-    {
-        if (preg_match("/$payable$/", $val)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * make Match condition
-     *
-     * @param string $val
-     * @param mixed $payable
-     * @return bool
-     */
-    protected function condMatch($val, $payable)
-    {
-        $payable = rtrim($payable, '$/');
-        $payable = ltrim($payable, '/^');
-
-        $pattern = '/^'.$payable.'$/';
-        if (preg_match($pattern, $val)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * make Contains condition
-     *
-     * @param string $val
-     * @param mixed $payable
-     * @return bool
-     */
-    protected function condContains($val, $payable)
-    {
-        return (strpos($val, $payable) !== false);
-    }
-
-    /**
-     * make date condition
-     *
-     * @param string $val
-     * @param mixed $payable
-     * @return bool
-     */
-    protected function condDates($val, $payable)
-    {
-        $date = date('Y-m-d', strtotime($val));
-        return $date == $payable;
-    }
-
-    /**
-     * make month condition
-     *
-     * @param string $val
-     * @param mixed $payable
-     * @return bool
-     */
-    protected function condMonth($val, $payable)
-    {
-        $month = date('m', strtotime($val));
-        return $month == $payable;
-    }
-
-    /**
-     * make year condition
-     *
-     * @param string $val
-     * @param mixed $payable
-     * @return bool
-     */
-    protected function condYear($val, $payable)
-    {
-        $year = date('Y', strtotime($val));
-        return $year == $payable;
     }
 }
