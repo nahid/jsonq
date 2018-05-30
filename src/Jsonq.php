@@ -93,7 +93,7 @@ class Jsonq
     {
         $this->prepare();
 
-        if (is_null($this->_map) || is_string($this->_map)) {
+        if (is_null($this->_map) || is_scalar($this->_map)) {
             return $this->_map;
         }
 
