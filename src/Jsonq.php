@@ -405,13 +405,14 @@ class Jsonq
      * getting data from desire path
      *
      * @param string $path
+     * @param bool $object
      * @return mixed
      * @throws NullValueException
      * @throws ConditionNotAllowedException
      */
-    public function find($path)
+    public function find($path, $object = true)
     {
-        return $this->from($path)->prepare()->get();
+        return $this->from($path)->prepare()->get($object);
     }
 
     /**
