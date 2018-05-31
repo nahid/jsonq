@@ -10,7 +10,7 @@ trait JsonQueriable
 {
     /**
      * store node path
-     * @var string
+     * @var string|array
      */
     protected $_node = '';
 
@@ -77,9 +77,10 @@ trait JsonQueriable
     /**
      * import data from file
      *
-     * @param string $file
+     * @param string|null $file
      * @return bool
      * @throws FileNotFoundException
+     * @throws InvalidJsonException
      */
     public function import($file = null)
     {
@@ -212,6 +213,7 @@ trait JsonQueriable
      * @param string $type
      * @return bool|string|array
      * @throws FileNotFoundException
+     * @throws InvalidJsonException
      */
     protected function getDataFromFile($file, $type = 'application/json')
     {
@@ -298,7 +300,7 @@ trait JsonQueriable
                     if (is_callable($func) || method_exists($this, $func) ) {
                         if (isset($val[$rule['key']])) {
                             $return = call_user_func_array($call_func, [$val[$rule['key']], $rule['value']]);
-                        }else {
+                        } else {
                             $return = false;
                         }
                         $tmp &= $return;
@@ -317,9 +319,9 @@ trait JsonQueriable
     /**
      * make WHERE clause
      *
-     * @param $key string
-     * @param $condition string
-     * @param $value mixed
+     * @param string $key
+     * @param string $condition
+     * @param mixed $value
      * @return $this
      */
     public function where($key, $condition = null, $value = null)
@@ -338,9 +340,9 @@ trait JsonQueriable
     /**
      * make WHERE clause with OR
      *
-     * @param $key string
-     * @param $condition string
-     * @param $value mixed
+     * @param string $key
+     * @param string $condition
+     * @param mixed $value
      * @return $this
      */
     public function orWhere($key = null, $condition = null, $value = null)
@@ -358,9 +360,9 @@ trait JsonQueriable
     /**
      * generator for AND and OR where
      *
-     * @param $key string
-     * @param $condition string
-     * @param $value mixed
+     * @param string $key
+     * @param string $condition
+     * @param mixed $value
      * @return $this
      */
     protected function makeWhere($key, $condition = null, $value = null)
@@ -386,8 +388,8 @@ trait JsonQueriable
     /**
      * make WHERE IN clause
      *
-     * @param $key string
-     * @param $value array
+     * @param string $key
+     * @param array $value
      * @return $this
      */
     public function whereIn($key = null, $value = [])
@@ -400,8 +402,8 @@ trait JsonQueriable
     /**
      * make WHERE NOT IN clause
      *
-     * @param $key string
-     * @param $value mixed
+     * @param string $key
+     * @param mixed $value
      * @return $this
      */
     public function whereNotIn($key = null, $value = [])
@@ -413,7 +415,7 @@ trait JsonQueriable
     /**
      * make WHERE NULL clause
      *
-     * @param $key string
+     * @param string $key
      * @return $this
      */
     public function whereNull($key = null)
@@ -425,7 +427,7 @@ trait JsonQueriable
     /**
      * make WHERE NOT NULL clause
      *
-     * @param $key string
+     * @param string $key
      * @return $this
      */
     public function whereNotNull($key = null)
@@ -438,8 +440,8 @@ trait JsonQueriable
     /**
      * make WHERE START WITH clause
      *
-     * @param $key string
-     * @param $value string
+     * @param string $key
+     * @param string $value
      * @return $this
      */
     public function whereStartsWith($key, $value)
@@ -452,8 +454,8 @@ trait JsonQueriable
     /**
      * make WHERE ENDS WITH clause
      *
-     * @param $key string
-     * @param $value string
+     * @param string $key
+     * @param string $value
      * @return $this
      */
     public function whereEndsWith($key, $value)
@@ -466,8 +468,8 @@ trait JsonQueriable
     /**
      * make WHERE MATCH clause
      *
-     * @param $key string
-     * @param $value string
+     * @param string $key
+     * @param string $value
      * @return $this
      */
     public function whereMatch($key, $value)
@@ -480,8 +482,8 @@ trait JsonQueriable
     /**
      * make WHERE CONTAINS clause
      *
-     * @param $key string
-     * @param $value string
+     * @param string $key
+     * @param string $value
      * @return $this
      */
     public function whereContains($key, $value)
@@ -494,8 +496,8 @@ trait JsonQueriable
     /**
      * make WHERE DATE clause
      *
-     * @param $key string
-     * @param $value string
+     * @param string $key
+     * @param string $value
      * @return $this
      */
     public function whereDate($key, $value)
@@ -508,8 +510,8 @@ trait JsonQueriable
     /**
      * make WHERE month clause
      *
-     * @param $key string
-     * @param $value string
+     * @param string $key
+     * @param string $value
      * @return $this
      */
     public function whereMonth($key, $value)
@@ -522,8 +524,8 @@ trait JsonQueriable
     /**
      * make WHERE Year clause
      *
-     * @param $key string
-     * @param $value string
+     * @param string $key
+     * @param string $value
      * @return $this
      */
     public function whereYear($key, $value)
@@ -536,8 +538,8 @@ trait JsonQueriable
     /**
      * make macro for custom where clause
      *
-     * @param $name string
-     * @param $fn callable
+     * @param string $name
+     * @param callable $fn
      * @return bool
      */
     public static function macro($name, callable $fn)
@@ -555,8 +557,8 @@ trait JsonQueriable
     /**
      * make Equal condition
      *
-     * @param $val string
-     * @param $payable mixed
+     * @param string $val
+     * @param mixed $payable
      * @return bool
      */
     protected function condEqual($val, $payable)
@@ -567,8 +569,8 @@ trait JsonQueriable
     /**
      * make Exact Equal condition
      *
-     * @param $val string
-     * @param $payable mixed
+     * @param string $val
+     * @param mixed $payable
      * @return bool
      */
     protected function condExactEqual($val, $payable)
@@ -579,8 +581,8 @@ trait JsonQueriable
     /**
      * make Not Equal condition
      *
-     * @param $val string
-     * @param $payable mixed
+     * @param string $val
+     * @param mixed $payable
      * @return bool
      */
     protected function condNotEqual($val, $payable)
@@ -591,8 +593,8 @@ trait JsonQueriable
     /**
      * make Not Exact Equal condition
      *
-     * @param $val string
-     * @param $payable mixed
+     * @param string $val
+     * @param mixed $payable
      * @return bool
      */
     protected function condNotExactEqual($val, $payable)
@@ -603,8 +605,8 @@ trait JsonQueriable
     /**
      * make Greater Than condition
      *
-     * @param $val string
-     * @param $payable mixed
+     * @param string $val
+     * @param mixed $payable
      * @return bool
      */
     protected function condGreater($val, $payable)
@@ -615,8 +617,8 @@ trait JsonQueriable
     /**
      * make Less Than condition
      *
-     * @param $val string
-     * @param $payable mixed
+     * @param string $val
+     * @param mixed $payable
      * @return bool
      */
     protected function condLess($val, $payable)
@@ -627,8 +629,8 @@ trait JsonQueriable
     /**
      * make Greater Equal condition
      *
-     * @param $val string
-     * @param $payable mixed
+     * @param string $val
+     * @param mixed $payable
      * @return bool
      */
     protected function condGreaterEqual($val, $payable)
@@ -639,8 +641,8 @@ trait JsonQueriable
     /**
      * make Less Equal condition
      *
-     * @param $val string
-     * @param $payable mixed
+     * @param string $val
+     * @param mixed $payable
      * @return bool
      */
     protected function condLessEqual($val, $payable)
@@ -651,8 +653,8 @@ trait JsonQueriable
     /**
      * make In condition
      *
-     * @param $val string
-     * @param $payable mixed
+     * @param string $val
+     * @param mixed $payable
      * @return bool
      */
     protected function condIn($val, $payable)
@@ -663,8 +665,8 @@ trait JsonQueriable
     /**
      * make Not In condition
      *
-     * @param $val string
-     * @param $payable mixed
+     * @param string $val
+     * @param mixed $payable
      * @return bool
      */
     protected function condNotIn($val, $payable)
@@ -675,8 +677,8 @@ trait JsonQueriable
     /**
      * make Null condition
      *
-     * @param $val string
-     * @param $payable mixed
+     * @param string $val
+     * @param mixed $payable
      * @return bool
      */
     protected function condNull($val, $payable)
@@ -687,8 +689,8 @@ trait JsonQueriable
     /**
      * make Not Null condition
      *
-     * @param $val string
-     * @param $payable mixed
+     * @param string $val
+     * @param mixed $payable
      * @return bool
      */
     protected function condNotNull($val, $payable)
@@ -699,8 +701,8 @@ trait JsonQueriable
     /**
      * make Starts With condition
      *
-     * @param $val string
-     * @param $payable mixed
+     * @param string $val
+     * @param mixed $payable
      * @return bool
      */
     protected function condStartsWith($val, $payable)
@@ -715,8 +717,8 @@ trait JsonQueriable
     /**
      * make Ends With condition
      *
-     * @param $val string
-     * @param $payable mixed
+     * @param string $val
+     * @param mixed $payable
      * @return bool
      */
     protected function condEndsWith($val, $payable)
@@ -731,8 +733,8 @@ trait JsonQueriable
     /**
      * make Match condition
      *
-     * @param $val string
-     * @param $payable mixed
+     * @param string $val
+     * @param mixed $payable
      * @return bool
      */
     protected function condMatch($val, $payable)
@@ -751,8 +753,8 @@ trait JsonQueriable
     /**
      * make Contains condition
      *
-     * @param $val string
-     * @param $payable mixed
+     * @param string $val
+     * @param mixed $payable
      * @return bool
      */
     protected function condContains($val, $payable)
@@ -763,8 +765,8 @@ trait JsonQueriable
     /**
      * make date condition
      *
-     * @param $val string
-     * @param $payable mixed
+     * @param string $val
+     * @param mixed $payable
      * @return bool
      */
     protected function condDates($val, $payable)
@@ -776,8 +778,8 @@ trait JsonQueriable
     /**
      * make month condition
      *
-     * @param $val string
-     * @param $payable mixed
+     * @param string $val
+     * @param mixed $payable
      * @return bool
      */
     protected function condMonth($val, $payable)
@@ -789,8 +791,8 @@ trait JsonQueriable
     /**
      * make year condition
      *
-     * @param $val string
-     * @param $payable mixed
+     * @param string $val
+     * @param mixed $payable
      * @return bool
      */
     protected function condYear($val, $payable)
