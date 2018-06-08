@@ -64,7 +64,7 @@ class Condition
      *
      * @return bool
      */
-    public static function greater($value, $comparable)
+    public static function greaterThan($value, $comparable)
     {
         return $value > $comparable;
     }
@@ -77,7 +77,7 @@ class Condition
      * 
      * @return bool
      */
-    public static function condLess($value, $comparable)
+    public static function lessThan($value, $comparable)
     {
         return $value < $comparable;
     }
@@ -90,7 +90,7 @@ class Condition
      *
      * @return bool
      */
-    public static function greaterEqual($value, $comparable)
+    public static function greaterThanOrEqual($value, $comparable)
     {
         return $value >= $comparable;
     }
@@ -103,7 +103,7 @@ class Condition
      *
      * @return bool
      */
-    public static function lessEqual($value, $comparable)
+    public static function lessThanOrEqual($value, $comparable)
     {
         return $value <= $comparable;
     }

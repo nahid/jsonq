@@ -53,14 +53,14 @@ trait JsonQueriable
         'neq' => 'notEqual',
         '!==' => 'strictNotEqual',
         'sneq' => 'strictNotEqual',
-        '>' => 'greater',
-        'gt' => 'greater',
-        '<' => 'less',
-        'lt' => 'less',
-        '>=' => 'greaterEqual',
-        'gte' => 'greaterEqual',
-        '<=' => 'lessEqual',
-        'lte' => 'lessEqual',
+        '>' => 'greaterThan',
+        'gt' => 'greaterThan',
+        '<' => 'lessThan',
+        'lt' => 'lessThan',
+        '>=' => 'greaterThanOrEqual',
+        'gte' => 'greaterThanOrEqual',
+        '<=' => 'lessThanOrEqual',
+        'lte' => 'lessThanOrEqual',
         'in'    => 'in',
         'notin' => 'notIn',
         'null' => 'isNull',
@@ -249,7 +249,7 @@ trait JsonQueriable
         if (empty($this->_node) || $this->_node == '.') {
             return $this->_map;
         }
-        
+
         if ($this->_node) {
             $terminate = false;
             $map = $this->_map;
