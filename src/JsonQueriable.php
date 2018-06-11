@@ -27,6 +27,12 @@ trait JsonQueriable
     protected $_select = [];
 
     /**
+     * contains column names for except
+     * @var array
+     */
+    protected $_except = [];
+
+    /**
      * Stores base contents.
      *
      * @var array
@@ -192,6 +198,11 @@ trait JsonQueriable
     }
 
 
+    public function takeColumn($array)
+    {
+        return $this->selectColumn($this->exceptColumn($array));
+    }
+
     /**
      * selecting specific column
      *
@@ -210,6 +221,24 @@ trait JsonQueriable
     }
 
     /**
+     * selecting specific column
+     *
+     * @param $array
+     * @return array
+     */
+    protected function exceptColumn($array)
+    {
+        $keys = $this->_except;
+
+        if (count($keys) == 0) {
+            return $array;
+        }
+
+        return array_diff_key($array, array_flip((array) $keys));
+    }
+
+
+    /**
      * Prepare data for result
      *
      * @param mixed $data
@@ -221,11 +250,11 @@ trait JsonQueriable
         $output = [];
         if ($this->isMultiArray($data)) {
             foreach ($data as $key => $val) {
-                $val = $this->selectColumn($val);
+                $val = $this->takeColumn($val);
                 $output[$key] = $isObject ? (object) $val : $val;
             }
         } else {
-            $output = json_decode(json_encode($this->selectColumn($data)), !$isObject);
+            $output = json_decode(json_encode($this->takeColumn($data)), !$isObject);
         }
 
         return $output;

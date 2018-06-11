@@ -14,11 +14,15 @@ use Nahid\JsonQ\Jsonq;
 //    return is_integer($payable);
 //});
 //
-$jq = new Jsonq('data.json');
 
-$result = $jq->from('products')
-    ->select('name', 'id')
-    ->where('cat', '=', 2)
-    ->sortBy('user_id', 'asc')
-    ->get();
+$jq = new Jsonq('data1.json');
+
+$result = $jq->from('data')
+    ->pipe(function($j) {
+        return $j->transform(function($val) {
+            $val['user_id'] = $val['user']['id'];
+            return $val;
+        });
+    })->get();
+
 dump($result);
