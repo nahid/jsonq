@@ -83,6 +83,22 @@ class Jsonq
     }
 
     /**
+     * select desired column
+     *
+     * @param ... scalar
+     * @return $this
+     */
+    public function select()
+    {
+        $args = func_get_args();
+        if (count($args) > 0 ){
+            $this->_select = $args;
+        }
+
+        return $this;
+    }
+
+    /**
      * getting prepared data
      *
      * @param bool $object
@@ -98,7 +114,7 @@ class Jsonq
         }
 
         if (!$this->isMultiArray($this->_map)) {
-            return (object) $this->_map;
+            return (object) $this->selectColumn($this->_map);
         }
 
         return $this->prepareResult($this->_map, $object);

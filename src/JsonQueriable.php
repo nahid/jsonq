@@ -21,6 +21,12 @@ trait JsonQueriable
     protected $_map;
 
     /**
+     * contains column names
+     * @var array
+     */
+    protected $_select = [];
+
+    /**
      * Stores base contents.
      *
      * @var array
@@ -185,6 +191,24 @@ trait JsonQueriable
         return $isReturnMap ? $data : true;
     }
 
+
+    /**
+     * selecting specific column
+     *
+     * @param $array
+     * @return array
+     */
+    protected function selectColumn($array)
+    {
+        $keys = $this->_select;
+
+        if (count($keys) == 0) {
+            return $array;
+        }
+
+        return array_intersect_key($array, array_flip((array) $keys));
+    }
+
     /**
      * Prepare data for result
      *
@@ -195,12 +219,13 @@ trait JsonQueriable
     protected function prepareResult($data, $isObject)
     {
         $output = [];
-        if (is_array($data)) {
+        if ($this->isMultiArray($data)) {
             foreach ($data as $key => $val) {
+                $val = $this->selectColumn($val);
                 $output[$key] = $isObject ? (object) $val : $val;
             }
         } else {
-            $output = json_decode(json_encode($data), $isObject);
+            $output = json_decode(json_encode($this->selectColumn($data)), !$isObject);
         }
 
         return $output;
