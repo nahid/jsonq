@@ -135,6 +135,8 @@ Following API examples are shown based on the sample JSON data given [here](exam
 * [find](#findpath)
 * [at](#atpath)
 * [from](#frompath)
+* [select](#select)
+* [except](#except)
 * [then](#then)
 * [collect](#collect)
 * [json](#json)
@@ -173,8 +175,8 @@ Following API examples are shown based on the sample JSON data given [here](exam
 * [transform](#transform)
 * [each](#each)
 * [pipe](#pipe)
-* [macro](#macro)
 * [chunk](#chunk)
+* [macro](#macro)
 
 ### `fetch()`
 
