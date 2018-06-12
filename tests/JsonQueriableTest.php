@@ -172,7 +172,6 @@ class JsonQueriableTest extends AbstractTestCase
     public function testPrepareResult($input, $isObject, $result)
     {
         $method = $this->makeCallable($this->jsonq, 'prepareResult');
-        
         $this->assertEquals($result, $method->invokeArgs($this->jsonq, [$input, $isObject]));
     }
     
@@ -209,15 +208,14 @@ class JsonQueriableTest extends AbstractTestCase
     public function prepareResultProvider()
     {
         $obj = new \stdClass();
-        $obj->scalar = 'test';
-        $obj2 = new \stdClass();
-        $obj2->scalar = 'test2';
+        $obj->key1 = 'test';
+        $obj->key2 = 'test2';
         
         return [
-            [['test', 'test2'], false, ['test', 'test2']],
-            [['key1' => 'test','key2' =>  'test2'], false, ['key1' => 'test','key2' => 'test2']],
-            [['test', 'test2'], true, [$obj, $obj2]],
-            [['key1' => 'test','key2' =>  'test2'], true, ['key1' => $obj, 'key2' => $obj2]],
+            [['test', ['test2', 'test3']], false, ['test', ['test2', 'test3']]],
+            [['key1' => 'test','key2' =>  'test2'], false, $obj],
+            [['test', 'test2'], true, ['test', 'test2']],
+            [['key1' => 'test','key2' =>  'test2'], true, ['key1' => 'test','key2' =>  'test2']],
             ['["test", "test2"]', false, '["test", "test2"]'],
             ['["test", "test2"]', true, '["test", "test2"]']
         ];

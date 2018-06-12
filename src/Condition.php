@@ -51,7 +51,7 @@ class Condition
      *
      * @return bool
      */
-    public static function notExactEqual($value, $comparable)
+    public static function strictNotEqual($value, $comparable)
     {
         return $value !== $comparable;
     }
@@ -168,6 +168,10 @@ class Condition
      */
     public static function startWith($value, $comparable)
     {
+        if (is_array($comparable) || is_array($value) || is_object($comparable) || is_object($value)) {
+            return false;
+        }
+        
         if (preg_match("/^$comparable/", $value)) {
             return true;
         }
@@ -185,6 +189,10 @@ class Condition
      */
     public static function endWith($value, $comparable)
     {
+        if (is_array($comparable) || is_array($value) || is_object($comparable) || is_object($value)) {
+            return false;
+        }
+        
         if (preg_match("/$comparable$/", $value)) {
             return true;
         }
@@ -202,6 +210,10 @@ class Condition
      */
     public static function match($value, $comparable)
     {
+        if (is_array($comparable) || is_array($value) || is_object($comparable) || is_object($value)) {
+            return false;
+        }
+        
         $comparable = trim($comparable);
 
         if (preg_match("/^$comparable$/", $value)) {
