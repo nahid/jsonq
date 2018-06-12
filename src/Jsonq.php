@@ -59,13 +59,7 @@ class Jsonq
             throw new NullValueException("Null node exception");
         }
 
-        if ($node == '.') {
-            $this->_node = $node;
-
-            return $this;
-        }
-
-        $this->_node = explode('.', $node);
+        $this->_node = $node;
 
         return $this;
     }
@@ -121,7 +115,7 @@ class Jsonq
      * @return array|object
      * @throws ConditionNotAllowedException
      */
-    public function get($object = true)
+    public function get($object = false)
     {
         $this->prepare();
 
@@ -130,7 +124,7 @@ class Jsonq
         }
 
         if (!$this->isMultiArray($this->_map)) {
-            return (object) $this->takeColumn($this->_map);
+            return $object ? (object) $this->takeColumn($this->_map) : $this->takeColumn($this->_map);
         }
 
         return $this->prepareResult($this->_map, $object);
@@ -191,8 +185,32 @@ class Jsonq
 
         $data = [];
         foreach ($this->_map as $map) {
-            if (isset($map[$column])) {
-                $data[$map[$column]][] = $map;
+            $value = $this->getFromNested($map, $column);
+            if ($value) {
+                $data[$value][] = $map;
+            }
+        }
+
+        $this->_map = $data;
+        return $this;
+    }
+
+    public function countGroupBy($column)
+    {
+
+        $this->prepare();
+
+        $data = [];
+        foreach ($this->_map as $map) {
+            $value = $this->getFromNested($map, $column);
+            if (!$value) {
+                continue;
+            }
+
+            if (isset($data[$value])) {
+                $data[$value]  ++;
+            } else {
+                $data[$value] = 1;
             }
         }
 
@@ -314,7 +332,7 @@ class Jsonq
      * @return object|array|null
      * @throws ConditionNotAllowedException
      */
-    public function first($object = true)
+    public function first($object = false)
     {
         $this->prepare();
 
@@ -333,7 +351,7 @@ class Jsonq
      * @return object|array|null
      * @throws ConditionNotAllowedException
      */
-    public function last($object = true)
+    public function last($object = false)
     {
         $this->prepare();
 
@@ -353,7 +371,7 @@ class Jsonq
      * @return object|array|null
      * @throws ConditionNotAllowedException
      */
-    public function nth($index, $object = true)
+    public function nth($index, $object = false)
     {
         $this->prepare();
 
@@ -391,8 +409,8 @@ class Jsonq
         }
 
         usort($this->_map, function ($a, $b) use ($column, $order) {
-            $val1 = $a[$column];
-            $val2 = $b[$column];
+            $val1 = $this->getFromNested($a, $column);
+            $val2 = $this->getFromNested($b, $column);
             if (is_string($val1)) {
                 $val1 = strtolower($val1);
             }
@@ -401,7 +419,7 @@ class Jsonq
                 $val2 = strtolower($val2);
             }
 
-            if ($a[$column] == $b[$column]) {
+            if ($val1 == $val2) {
                 return 0;
             }
             $order = strtolower(trim($order));
@@ -442,7 +460,7 @@ class Jsonq
      * @throws NullValueException
      * @throws ConditionNotAllowedException
      */
-    public function find($path, $object = true)
+    public function find($path, $object = false)
     {
         return $this->from($path)->prepare()->get($object);
     }

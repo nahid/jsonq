@@ -19,18 +19,10 @@ $jq = new Jsonq('data1.json');
 
 try {
     $result = $jq->from('data')
-        ->pipe(function($j) {
-            return $j->transform(function($val) {
-                $val['user_id'] = $val['user']['id'];
-                $val['issued_at'] = date('Y, M d', strtotime($val['issued_at']));
-                $val['created_at'] = date('Y, M d h:i:s', strtotime($val['created_at']));
-//                $val['balance'] = $val['balance'] * 80;
-                return $val;
-            });
-        })
-        //->select('user_id', 'number', 'balance')
-        ->implode('balance', ' ');
-
+        //->where('user.id', '=', 345101090)
+//        ->sortBy('user.id', 'desc')
+        ->countGroupBy('user.id')
+        ->get();
     dump($result);
 } catch (\Nahid\JsonQ\Exceptions\ConditionNotAllowedException $e) {
 

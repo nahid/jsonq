@@ -255,7 +255,7 @@ trait JsonQueriable
                 $output[$key] = $isObject ? (object) $val : $val;
             }
         } else {
-            $output = json_decode(json_encode($this->takeColumn($data)), !$isObject);
+            $output = json_decode(json_encode($this->takeColumn($data)), $isObject);
         }
 
         return $output;
@@ -293,21 +293,24 @@ trait JsonQueriable
         throw new FileNotFoundException();
     }
 
+
+
     /**
-     * get data from node path
+     * Get data from nested array
      *
-     * @return mixed
+     * @param $map array
+     * @param $node string
+     * @return bool|array|mixed
      */
-    protected function getData()
+    protected function getFromNested($map, $node)
     {
-        if (empty($this->_node) || $this->_node == '.') {
-            return $this->_map;
+        if (empty($node) || $node == '.') {
+            return $map;
         }
 
-        if ($this->_node) {
+        if ($node) {
             $terminate = false;
-            $map = $this->_map;
-            $path = $this->_node;
+            $path = explode('.', $node);
 
             foreach ($path as $val) {
                 if (!isset($map[$val])) {
@@ -326,6 +329,16 @@ trait JsonQueriable
         }
 
         return false;
+    }
+
+    /**
+     * get data from node path
+     *
+     * @return mixed
+     */
+    protected function getData()
+    {
+        return $this->getFromNested($this->_map, $this->_node);
     }
 
     /**
@@ -352,8 +365,8 @@ trait JsonQueriable
                         $function = [Condition::class, $function];
                     }
                     
-                    $key = $rule['key'];
-                    $return = isset($val[$key]) ? call_user_func_array($function, [$val[$key], $rule['value']]) : false;
+                    $value = $this->getFromNested($val, $rule['key']);
+                    $return = $value ? call_user_func_array($function, [$value, $rule['value']]) : false;
                     $tmp &= $return;
                 }
                 $res |= $tmp;
