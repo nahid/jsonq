@@ -119,14 +119,6 @@ class Jsonq
     {
         $this->prepare();
 
-        if (is_null($this->_map) || is_scalar($this->_map)) {
-            return $this->_map;
-        }
-
-        if (!$this->isMultiArray($this->_map)) {
-            return $object ? (object) $this->takeColumn($this->_map) : $this->takeColumn($this->_map);
-        }
-
         return $this->prepareResult($this->_map, $object);
     }
 
@@ -496,7 +488,7 @@ class Jsonq
             $new_data[$key] = $fn($val);
         }
 
-        return $new_data;
+        return $this->prepareResult($new_data, false);
     }
 
     /**
@@ -527,7 +519,7 @@ class Jsonq
      *
      * @param callable $fn
      * @param bool $key
-     * @return object|array
+     * @return mixed|array
      * @throws ConditionNotAllowedException
      */
     public function filter(callable $fn, $key = false)
@@ -545,7 +537,7 @@ class Jsonq
             }
         }
 
-        return $data;
+        return $this->prepareResult($data, false);
     }
 
     /**

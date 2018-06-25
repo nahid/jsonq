@@ -141,7 +141,7 @@ class Condition
      *
      * @return bool
      */
-    public static function isNull($value)
+    public static function isNull($value, $comparable)
     {
         return is_null($value);
     }
@@ -153,7 +153,7 @@ class Condition
      *
      * @return bool
      */
-    public static function isNotNull($value)
+    public static function isNotNull($value, $comparable)
     {
         return !is_null($value);
     }

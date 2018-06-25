@@ -244,11 +244,16 @@ trait JsonQueriable
      *
      * @param mixed $data
      * @param bool $isObject
-     * @return array
+     * @return array|mixed
      */
     protected function prepareResult($data, $isObject)
     {
         $output = [];
+
+        if (is_null($data) || is_scalar($data)) {
+            return $data;
+        }
+
         if ($this->isMultiArray($data)) {
             foreach ($data as $key => $val) {
                 $val = $this->takeColumn($val);
@@ -313,7 +318,7 @@ trait JsonQueriable
             $path = explode('.', $node);
 
             foreach ($path as $val) {
-                if (!isset($map[$val])) {
+                if (!array_key_exists($val, $map)) {
                     $terminate = true;
                     break;
                 }
@@ -366,7 +371,7 @@ trait JsonQueriable
                     }
                     
                     $value = $this->getFromNested($val, $rule['key']);
-                    $return = $value ? call_user_func_array($function, [$value, $rule['value']]) : false;
+                    $return = $value === null || $value ? call_user_func_array($function, [$value, $rule['value']]) : false;
                     $tmp &= $return;
                 }
                 $res |= $tmp;
@@ -481,7 +486,7 @@ trait JsonQueriable
      */
     public function whereNull($key = null)
     {
-        $this->where($key, 'null', null);
+        $this->where($key, 'null', 'null');
         return $this;
     }
 
@@ -493,7 +498,7 @@ trait JsonQueriable
      */
     public function whereNotNull($key = null)
     {
-        $this->where($key, 'notnull', null);
+        $this->where($key, 'notnull', 'null');
 
         return $this;
     }
