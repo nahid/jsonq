@@ -249,11 +249,11 @@ class Jsonq
             $sum = array_sum($this->_map);
         } else {
             foreach ($this->_map as $key => $val) {
-                if (isset($val[$column])) {
-                    if (is_numeric($val[$column])) {
-                        $sum += $val[$column];
-                    }
+                $value = $this->getFromNested($val, $column);
+                if (is_scalar($value)) {
+                    $sum += $value;
                 }
+
             }
         }
 

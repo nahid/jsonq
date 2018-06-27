@@ -7,16 +7,30 @@
 		"website":"https://nahid.im"
 	},
 	"users":[
-		{"id":1, "name":"Johura Akter Sumi", "location": "dhaka"},
-		{"id":2, "name":"Mehedi Hasan Nahid", "location": "barisal"},
-		{"id":3, "name":"Ariful Islam", "location": "barisal"},
-		{"id":4, "name":"Suhel Ahmed", "location": "sylhet"},
-		{"id":5, "name":"Firoz Serniabat", "location": "barisal"},
-		{"id":6, "name":"Musa Jewel", "location": "barisal", "visits": [
-			{"name": "Sylhet", "year": 2011},
-			{"name": "Cox's Bazar", "year": 2012},
-			{"name": "Bandarbar", "year": 2014}
-		]}
+		{"id":1, "name":"Johura Akter Sumi", "location": "dhaka", "visits": {
+			"name"	: "Barisal",
+			"year"	: 2010
+		}},
+		{"id":2, "name":"Mehedi Hasan Nahid", "location": "barisal", "visits":{
+			"name"	: "Dhaka",
+			"year"	: 2015
+		}},
+		{"id":3, "name":"Ariful Islam", "location": "barisal", "visits": {
+			"name"	: "Dhaka",
+			"year"	: 2010
+		}},
+		{"id":4, "name":"Suhel Ahmed", "location": "sylhet", "visits": {
+			"name"	: "Barisal",
+			"year"	: 2014
+		}},
+		{"id":5, "name":"Firoz Serniabat", "location": "barisal", "visits": {
+			"name"	: "Barisal",
+			"year"	: 2011
+		}},
+		{"id":6, "name":"Musa Jewel", "location": "barisal", "visits": {
+			"name"	: "Khulna",
+			"year"	: 2012
+		}}
 	],
 	"products": [
 		{"id":1, "user_id": 2, "city": "bsl", "name":"iPhone", "cat":1, "price": 80000},

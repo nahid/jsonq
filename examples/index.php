@@ -15,14 +15,12 @@ use Nahid\JsonQ\Jsonq;
 //});
 //
 
-$jq = new Jsonq('data1.json');
+$jq = new Jsonq('data.json');
 
 try {
-    $result = $jq->from('.')
-        //->whereContains('title', 'Day')
-        //->where('year', '>=', 2000)
-        ->countGroupBy('year')
-        ->avg();
+    $result = $jq->from('users')
+        ->where('visits.year', '=', 2010)
+        ->sum('visits.year');
     dump($result);
 } catch (\Nahid\JsonQ\Exceptions\ConditionNotAllowedException $e) {
 
