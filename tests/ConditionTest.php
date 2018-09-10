@@ -7,195 +7,253 @@ use Nahid\JsonQ\Condition;
 class ConditionTest extends AbstractTestCase
 {
     /**
-     * @param mixed $value
-     * @param mixed $comparable
-     * @param bool $result
-     * 
-     * @dataProvider equalProvider
+     * @var  \Nahid\JsonQ\Condition;
      */
-    public function testEqual($value, $comparable, $result)
+    protected $conditions;
+
+    protected function setUp()
     {
-        $this->assertEquals($result, Condition::equal($value, $comparable));
-    }
-    
-    /**
-     * @param mixed $value
-     * @param mixed $comparable
-     * @param bool $result
-     * 
-     * @dataProvider strictEqualProvider
-     */
-    public function testStrictEqual($value, $comparable, $result)
-    {
-        $this->assertEquals($result, Condition::strictEqual($value, $comparable));
-    }
-    
-    /**
-     * @param mixed $value
-     * @param mixed $comparable
-     * @param bool $result
-     * 
-     * @dataProvider notEqualProvider
-     */
-    public function testNotEqual($value, $comparable, $result)
-    {
-        $this->assertEquals($result, Condition::notEqual($value, $comparable));
-    }
-    
-    /**
-     * @param mixed $value
-     * @param mixed $comparable
-     * @param bool $result
-     * 
-     * @dataProvider strictNotEqualProvider
-     */
-    public function testStrictNotEqual($value, $comparable, $result)
-    {
-        $this->assertEquals($result, Condition::strictNotEqual($value, $comparable));
+        $this->conditions = new Condition();
     }
 
-    /**
-     * @param mixed $value
-     * @param mixed $comparable
-     * @param bool $result
-     * 
-     * @dataProvider greaterThanProvider
-     */
-    public function testGreaterThan($value, $comparable, $result)
+    public function testEqual()
     {
-        $this->assertEquals($result, Condition::greaterThan($value, $comparable));
+        $value = 10;
+        $comp = '10';
+
+        $resultTrue = $this->conditions->equal($value, $comp);
+        $this->assertTrue($resultTrue);
+
+        $comp = 'a10';
+
+        $resultFalse = $this->conditions->equal($value, $comp);
+        $this->assertFalse($resultFalse);
     }
 
-    /**
-     * @param mixed $value
-     * @param mixed $comparable
-     * @param bool $result
-     * 
-     * @dataProvider lessThanProvider
-     */
-    public function testLessThan($value, $comparable, $result)
+    public function testStrictEqual()
     {
-        $this->assertEquals($result, Condition::lessThan($value, $comparable));
+        $value = 10;
+        $comp = $value;
+
+        $resultTrue = $this->conditions->strictEqual($value, $comp);
+        $this->assertTrue($resultTrue);
+
+        $comp = (string) $comp;
+        $resultFalse = $this->conditions->strictEqual($value, $comp);
+        $this->assertFalse($resultFalse);
     }
 
-    /**
-     * @param mixed $value
-     * @param mixed $comparable
-     * @param bool $result
-     * 
-     * @dataProvider greaterThanOrEqualProvider
-     */
-    public function testGreaterThanOrEqual($value, $comparable, $result)
+
+    public function testNotEqual()
     {
-        $this->assertEquals($result, Condition::greaterThanOrEqual($value, $comparable));
+        $value = 10;
+        $comp = '11';
+
+        $resultTrue = $this->conditions->notEqual($value, $comp);
+        $this->assertTrue($resultTrue);
+
+        $comp = '10';
+
+        $resultFalse = $this->conditions->notEqual($value, $comp);
+        $this->assertFalse($resultFalse);
     }
 
-    /**
-     * @param mixed $value
-     * @param mixed $comparable
-     * @param bool $result
-     * 
-     * @dataProvider lessThanOrEqualProvider
-     */
-    public function testLessThanOrEqual($value, $comparable, $result)
+    public function testStrictNotEqual()
     {
-        $this->assertEquals($result, Condition::lessThanOrEqual($value, $comparable));
-    }    
-    
-    /**
-     * @param mixed $value
-     * @param array $comparable
-     * @param bool $result
-     * 
-     * @dataProvider inProvider
-     */
-    public function testIn($value, $comparable, $result)
-    {
-        $this->assertEquals($result, Condition::in($value, $comparable));
+        $value = 10;
+        $comp = $value + 1;
+
+        $resultTrue = $this->conditions->strictNotEqual($value, $comp);
+        $this->assertTrue($resultTrue);
+
+        $comp = 10;
+
+        $resultFalse = $this->conditions->strictNotEqual($value, $comp);
+        $this->assertFalse($resultFalse);
     }
-    
-    /**
-     * @param mixed $value
-     * @param array $comparable
-     * @param bool $result
-     * 
-     * @dataProvider notInProvider
-     */
-    public function testNotIn($value, $comparable, $result)
+
+    public function testGreaterThan()
     {
-        $this->assertEquals($result, Condition::notIn($value, $comparable));
+        $value = 10;
+        $comp = $value - 1;
+
+        $resultTrue = $this->conditions->greaterThan($value, $comp);
+        $this->assertTrue($resultTrue);
+
+        $comp = $value;
+
+        $resultFalse = $this->conditions->greaterThan($value, $comp);
+        $this->assertFalse($resultFalse);
     }
-    
-    /**
-     * @param mixed $value
-     * @param bool $result
-     * 
-     * @dataProvider isNullProvider
-     */
-    public function testIsNull($value, $result)
+    public function testLessThan()
     {
-        $this->assertEquals($result, Condition::isNull($value));
+        $value = 10;
+        $comp = $value + 1;
+
+        $resultTrue = $this->conditions->lessThan($value, $comp);
+        $this->assertTrue($resultTrue);
+
+        $comp = $value;
+
+        $resultFalse = $this->conditions->lessThan($value, $comp);
+        $this->assertFalse($resultFalse);
     }
-    
-    /**
-     * @param mixed $value
-     * @param bool $result
-     * 
-     * @dataProvider isNotNullProvider
-     */
-    public function testIsNotNull($value, $result)
+
+    public function testGreaterThanOrEqual()
     {
-        $this->assertEquals($result, Condition::isNotNull($value));
+        $value = 11;
+        $comp = $value - 1;
+
+        $resultGreaterTrue = $this->conditions->greaterThanOrEqual($value, $comp);
+        $this->assertTrue($resultGreaterTrue);
+
+        $comp = $value;
+
+        $resultEqualTrue = $this->conditions->greaterThanOrEqual($value, $comp);
+        $this->assertTrue($resultEqualTrue);
+
+        $comp = $value + 1;
+
+        $resultFalse = $this->conditions->greaterThanOrEqual($value, $comp);
+        $this->assertFalse($resultFalse);
     }
-    
-    /**
-     * @param mixed $value
-     * @param string $comparable
-     * @param bool $result
-     * 
-     * @dataProvider startWithProvider
-     */
-    public function testStartWith($value, $comparable, $result)
+
+
+    public function testLessThanOrEqual()
     {
-        $this->assertEquals($result, Condition::startWith($value, $comparable));
+        $value = 11;
+        $comp = $value + 1;
+
+        $resultGreaterTrue = $this->conditions->lessThanOrEqual($value, $comp);
+        $this->assertTrue($resultGreaterTrue);
+
+        $comp = $value;
+
+        $resultEqualTrue = $this->conditions->lessThanOrEqual($value, $comp);
+        $this->assertTrue($resultEqualTrue);
+
+        $comp = $value - 1;
+
+        $resultFalse = $this->conditions->lessThanOrEqual($value, $comp);
+        $this->assertFalse($resultFalse);
+
     }
-    
-    /**
-     * @param mixed $value
-     * @param string $comparable
-     * @param bool $result
-     * 
-     * @dataProvider endWithProvider
-     */
-    public function testEndWith($value, $comparable, $result)
+
+    public function testIn()
     {
-        $this->assertEquals($result, Condition::endWith($value, $comparable));
+        $value = 7;
+        $comp = [2, 3, 1, 7, 9];
+
+        $resultTrue = $this->conditions->in($value, $comp);
+        $this->assertTrue($resultTrue);
+
+        $value = 6;
+
+        $resultFalse = $this->conditions->in($value, $comp);
+        $this->assertFalse($resultFalse);
     }
-    
-    /**
-     * @param mixed $value
-     * @param string $comparable
-     * @param bool $result
-     * 
-     * @dataProvider matchProvider
-     */
-    public function testMatch($value, $comparable, $result)
+
+    public function testNotIn()
     {
-        $this->assertEquals($result, Condition::match($value, $comparable));
+        $value = 6;
+        $comp = [2, 3, 1, 7, 9];
+
+        $resultTrue = $this->conditions->notIn($value, $comp);
+        $this->assertTrue($resultTrue);
+
+        $value = 7;
+
+        $resultFalse = $this->conditions->notIn($value, $comp);
+        $this->assertFalse($resultFalse);
     }
-    
-    /**
-     * @param mixed $value
-     * @param string $comparable
-     * @param bool $result
-     * 
-     * @dataProvider containsProvider
-     */
-    public function testContains($value, $comparable, $result)
+
+    public function testIsNull()
     {
-        $this->assertEquals($result, Condition::contains($value, $comparable));
+        $value = null;
+
+        $resultTrue = $this->conditions->isNull($value, null);
+        $this->assertTrue($resultTrue);
+
+        $value = true;
+
+        $resultFalse = $this->conditions->isNull($value, null);
+        $this->assertFalse($resultFalse);
+
     }
-    
+
+    public function testIsNotNull()
+    {
+        $value = true;
+
+        $resultTrue = $this->conditions->isNotNull($value, null);
+        $this->assertTrue($resultTrue);
+
+        $value = null;
+
+        $resultFalse = $this->conditions->isNotNull($value, null);
+        $this->assertFalse($resultFalse);
+    }
+
+
+    public function testStartWith()
+    {
+        $value = '8801848044143';
+        $comp = '88';
+
+        $resultTrue = $this->conditions->startWith($value, $comp);
+        $this->assertTrue($resultTrue);
+
+        $comp = '91';
+
+        $resultFalse = $this->conditions->startWith($value, $comp);
+        $this->assertFalse($resultFalse);
+    }
+
+    public function testEndWith()
+    {
+        $value = 'Amir Khan';
+        $comp = 'Khan';
+
+        $resultTrue = $this->conditions->endWith($value, $comp);
+        $this->assertTrue($resultTrue);
+
+        $comp = 'Chowdhury';
+
+        $resultFalse = $this->conditions->endWith($value, $comp);
+        $this->assertFalse($resultFalse);
+    }
+
+    public function testMatch()
+    {
+        $value = '8801848044143';
+        $comp = '88[0-9]{11}';
+
+        $resultTrue = $this->conditions->match($value, $comp);
+        $this->assertTrue($resultTrue);
+
+        $comp = '99[0-9]{11}';
+
+        $resultFalse = $this->conditions->match($value, $comp);
+        $this->assertFalse($resultFalse);
+
+    }
+
+    public function testContains()
+    {
+        $value = 'I love Bangladesh very much';
+        $comp = 'Bangladesh';
+
+        $resultTrue = $this->conditions->contains($value, $comp);
+        $this->assertTrue($resultTrue);
+
+        $comp = 'Mars';
+
+        $resultFalse = $this->conditions->contains($value, $comp);
+        $this->assertFalse($resultFalse);
+    }
+
+    // Todo: make testable
+
     public function containsProvider()
     {
         return [
@@ -206,7 +264,7 @@ class ConditionTest extends AbstractTestCase
             ['test', 'test', true],
         ];
     }
-    
+
     public function matchProvider()
     {
         return [
@@ -220,7 +278,7 @@ class ConditionTest extends AbstractTestCase
             ['test', null, false],
         ];
     }
-    
+
     public function endWithProvider()
     {
         return [
@@ -231,7 +289,7 @@ class ConditionTest extends AbstractTestCase
             ['test', null, true],
         ];
     }
-    
+
     public function startWithProvider()
     {
         return [
@@ -242,7 +300,7 @@ class ConditionTest extends AbstractTestCase
             ['test', null, true],
         ];
     }
-    
+
     public function isNotNullProvider()
     {
         return [
@@ -253,7 +311,7 @@ class ConditionTest extends AbstractTestCase
             [null, false],
         ];
     }
-    
+
     public function isNullProvider()
     {
         return [
@@ -264,7 +322,7 @@ class ConditionTest extends AbstractTestCase
             [null, true],
         ];
     }
-    
+
     public function inProvider()
     {
         return [
@@ -277,7 +335,7 @@ class ConditionTest extends AbstractTestCase
             [1, ['key1' => 1, 'key2' => 2], true]
         ];
     }
-    
+
     public function notInProvider()
     {
         return [
@@ -290,7 +348,7 @@ class ConditionTest extends AbstractTestCase
             [1, ['key1' => 1, 'key2' => 2], false]
         ];
     }
-    
+
     public function greaterThanProvider()
     {
         return [
@@ -303,7 +361,7 @@ class ConditionTest extends AbstractTestCase
             [1.2, 1.1, true]
         ];
     }
-    
+
     public function lessThanProvider()
     {
         return [
@@ -316,7 +374,7 @@ class ConditionTest extends AbstractTestCase
             [1.2, 1.1, false]
         ];
     }
-    
+
     public function greaterThanOrEqualProvider()
     {
         return [
@@ -329,7 +387,7 @@ class ConditionTest extends AbstractTestCase
             [1.2, 1.1, true]
         ];
     }
-    
+
     public function lessThanOrEqualProvider()
     {
         return [
@@ -342,7 +400,7 @@ class ConditionTest extends AbstractTestCase
             [1.2, 1.1, false]
         ];
     }
-    
+
     public function strictEqualProvider()
     {
         return [
@@ -356,7 +414,7 @@ class ConditionTest extends AbstractTestCase
             [true, 'true', false]
         ];
     }
-    
+
     public function equalProvider()
     {
         return [
@@ -369,7 +427,7 @@ class ConditionTest extends AbstractTestCase
             [true, true, true]
         ];
     }
-    
+
     public function strictNotEqualProvider()
     {
         return [
@@ -383,7 +441,7 @@ class ConditionTest extends AbstractTestCase
             [true, 'true', true]
         ];
     }
-    
+
     public function notEqualProvider()
     {
         return [
@@ -396,4 +454,5 @@ class ConditionTest extends AbstractTestCase
             [true, true, false]
         ];
     }
+
 }
