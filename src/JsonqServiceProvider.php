@@ -37,7 +37,7 @@ class JsonqServiceProvider extends ServiceProvider
         } elseif ($this->app instanceof LumenApplication) {
             $this->app->configure('jsonq');
         }
-        $this->mergeConfigFrom($source, 'jsonq');
+        $this->mergeConfigFrom($source, 'Jsonq');
     }
 
     /**
@@ -66,7 +66,7 @@ class JsonqServiceProvider extends ServiceProvider
             return new Jsonq($storagePath);
         });
 
-        $this->app->alias('jsonq', Jsonq::class);
+        $this->app->alias('Jsonq', Jsonq::class);
     }
     /**
      * Get the services provided by the provider.
