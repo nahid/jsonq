@@ -2,7 +2,9 @@
 
 namespace Nahid\JsonQ\Tests;
 
-abstract class AbstractTestCase extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+abstract class AbstractTestCase extends TestCase
 {
     /**
      * Make private and protected function callable
