@@ -595,3 +595,8 @@ This package has also different language support.
 - [JavaScript JsonQ](https://github.com/me-shaon/js-jsonq) developed by [Ahmed shamim](https://github.com/me-shaon)
 - [Python JsonQ](https://github.com/s1s1ty/py-jsonq) developed by [Shaon Shaonty](https://github.com/s1s1ty)
 - [Go JsonQ](https://github.com/thedevsaddam/gojsonq) developed by [Saddam H](https://github.com/thedevsaddam) - Upcoming
+
+## Support on Beerpay
+Hey dude! Help me out for a couple of :beers:!
+
+[![Beerpay](https://beerpay.io/nahid/jsonq/badge.svg?style=beer-square)](https://beerpay.io/nahid/jsonq)  [![Beerpay](https://beerpay.io/nahid/jsonq/make-wish.svg?style=flat-square)](https://beerpay.io/nahid/jsonq?focus=wish)
