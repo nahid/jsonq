@@ -2,6 +2,10 @@
 
 **JsonQ** is a simple, elegant PHP package to Query over any type of JSON Data. It'll make your life easier by giving the flavour of an ORM-like query on your JSON.
 
+## Support For This Project
+
+[![Beerpay](https://beerpay.io/nahid/jsonq/badge.svg)](https://beerpay.io/nahid/jsonq)
+
 ## Installation
 
 ```
