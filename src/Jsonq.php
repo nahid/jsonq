@@ -59,13 +59,7 @@ class Jsonq
             throw new NullValueException("Null node exception");
         }
 
-        if ($node == '.') {
-            $this->_node = $node;
-
-            return $this;
-        }
-
-        $this->_node = explode('.', $node);
+        $this->_node = $node;
 
         return $this;
     }
@@ -83,23 +77,47 @@ class Jsonq
     }
 
     /**
+     * select desired column
+     *
+     * @param ... scalar
+     * @return $this
+     */
+    public function select()
+    {
+        $args = func_get_args();
+        if (count($args) > 0 ){
+            $this->_select = $args;
+        }
+
+        return $this;
+    }
+
+    /**
+     * select desired column for except
+     *
+     * @param ... scalar
+     * @return $this
+     */
+    public function except()
+    {
+        $args = func_get_args();
+        if (count($args) > 0 ){
+            $this->_except = $args;
+        }
+
+        return $this;
+    }
+
+    /**
      * getting prepared data
      *
      * @param bool $object
      * @return array|object
      * @throws ConditionNotAllowedException
      */
-    public function get($object = true)
+    public function get($object = false)
     {
         $this->prepare();
-
-        if (is_null($this->_map) || is_string($this->_map)) {
-            return $this->_map;
-        }
-
-        if (!$this->isMultiArray($this->_map)) {
-            return (object) $this->_map;
-        }
 
         return $this->prepareResult($this->_map, $object);
     }
@@ -132,7 +150,7 @@ class Jsonq
     /**
      * reset given data to the $_map
      *
-     * @param $data mixed
+     * @param mixed $data
      * @return jsonq
      */
     public function reset($data = null)
@@ -149,9 +167,8 @@ class Jsonq
     /**
      * getting group data from specific column
      *
-     * @param $column
+     * @param string $column
      * @return $this
-     * @throws InvalidNodeException
      * @throws ConditionNotAllowedException
      */
     public function groupBy($column)
@@ -160,8 +177,32 @@ class Jsonq
 
         $data = [];
         foreach ($this->_map as $map) {
-            if (isset($map[$column])) {
-                $data[$map[$column]][] = $map;
+            $value = $this->getFromNested($map, $column);
+            if ($value) {
+                $data[$value][] = $map;
+            }
+        }
+
+        $this->_map = $data;
+        return $this;
+    }
+
+    public function countGroupBy($column)
+    {
+
+        $this->prepare();
+
+        $data = [];
+        foreach ($this->_map as $map) {
+            $value = $this->getFromNested($map, $column);
+            if (!$value) {
+                continue;
+            }
+
+            if (isset($data[$value])) {
+                $data[$value]  ++;
+            } else {
+                $data[$value] = 1;
             }
         }
 
@@ -195,7 +236,7 @@ class Jsonq
 
     /**
      * sum prepared data
-     * @param $column int
+     * @param int $column
      * @return int
      * @throws ConditionNotAllowedException
      */
@@ -208,11 +249,11 @@ class Jsonq
             $sum = array_sum($this->_map);
         } else {
             foreach ($this->_map as $key => $val) {
-                if (isset($val[$column])) {
-                    if (is_numeric($val[$column])) {
-                        $sum += $val[$column];
-                    }
+                $value = $this->getFromNested($val, $column);
+                if (is_scalar($value)) {
+                    $sum += $value;
                 }
+
             }
         }
 
@@ -222,7 +263,7 @@ class Jsonq
     /**
      * getting max value from prepared data
      *
-     * @param $column int
+     * @param int $column
      * @return int
      * @throws ConditionNotAllowedException
      */
@@ -242,7 +283,7 @@ class Jsonq
     /**
      * getting min value from prepared data
      *
-     * @param $column int
+     * @param int $column
      * @return string
      * @throws ConditionNotAllowedException
      */
@@ -262,7 +303,7 @@ class Jsonq
     /**
      * getting average value from prepared data
      *
-     * @param $column int
+     * @param int $column
      * @return string
      * @throws ConditionNotAllowedException
      */
@@ -279,11 +320,11 @@ class Jsonq
     /**
      * getting first element of prepared data
      *
-     * @param $object bool
+     * @param bool $object
      * @return object|array|null
      * @throws ConditionNotAllowedException
      */
-    public function first($object = true)
+    public function first($object = false)
     {
         $this->prepare();
 
@@ -298,11 +339,11 @@ class Jsonq
     /**
      * getting last element of prepared data
      *
-     * @param $object bool
+     * @param bool $object
      * @return object|array|null
      * @throws ConditionNotAllowedException
      */
-    public function last($object = true)
+    public function last($object = false)
     {
         $this->prepare();
 
@@ -317,12 +358,12 @@ class Jsonq
     /**
      * getting nth number of element of prepared data
      *
-     * @param $index int
-     * @param $object bool
+     * @param int $index
+     * @param bool $object
      * @return object|array|null
      * @throws ConditionNotAllowedException
      */
-    public function nth($index, $object = true)
+    public function nth($index, $object = false)
     {
         $this->prepare();
 
@@ -346,8 +387,8 @@ class Jsonq
     /**
      * sorting from prepared data
      *
-     * @param $column string
-     * @param $order string
+     * @param string $column
+     * @param string $order
      * @return object|array|null
      * @throws ConditionNotAllowedException
      */
@@ -360,8 +401,8 @@ class Jsonq
         }
 
         usort($this->_map, function ($a, $b) use ($column, $order) {
-            $val1 = $a[$column];
-            $val2 = $b[$column];
+            $val1 = $this->getFromNested($a, $column);
+            $val2 = $this->getFromNested($b, $column);
             if (is_string($val1)) {
                 $val1 = strtolower($val1);
             }
@@ -370,7 +411,7 @@ class Jsonq
                 $val2 = strtolower($val2);
             }
 
-            if ($a[$column] == $b[$column]) {
+            if ($val1 == $val2) {
                 return 0;
             }
             $order = strtolower(trim($order));
@@ -405,20 +446,21 @@ class Jsonq
     /**
      * getting data from desire path
      *
-     * @param $path string
+     * @param string $path
+     * @param bool $object
      * @return mixed
      * @throws NullValueException
      * @throws ConditionNotAllowedException
      */
-    public function find($path)
+    public function find($path, $object = false)
     {
-        return $this->from($path)->prepare()->get();
+        return $this->from($path)->prepare()->get($object);
     }
 
     /**
      * take action of each element of prepared data
      *
-     * @param $fn callable
+     * @param callable $fn
      * @throws ConditionNotAllowedException
      */
     public function each(callable $fn)
@@ -433,7 +475,7 @@ class Jsonq
     /**
      * transform prepared data by using callable function
      *
-     * @param $fn callable
+     * @param callable $fn
      * @return object|array
      * @throws ConditionNotAllowedException
      */
@@ -446,14 +488,14 @@ class Jsonq
             $new_data[$key] = $fn($val);
         }
 
-        return $new_data;
+        return $this->prepareResult($new_data, false);
     }
 
     /**
      * pipe send output in next pipe
      *
-     * @param $fn callable
-     * @param $class string|null
+     * @param callable $fn
+     * @param string|null $class
      * @return object|array
      * @throws ConditionNotAllowedException
      */
@@ -475,9 +517,9 @@ class Jsonq
     /**
      * filtered each element of prepared data
      *
-     * @param $fn callable
-     * @param $key bool
-     * @return object|array
+     * @param callable $fn
+     * @param bool $key
+     * @return mixed|array
      * @throws ConditionNotAllowedException
      */
     public function filter(callable $fn, $key = false)
@@ -495,13 +537,13 @@ class Jsonq
             }
         }
 
-        return $data;
+        return $this->prepareResult($data, false);
     }
 
     /**
      * then method set position of working data
      *
-     * @param $node string
+     * @param string $node
      * @return jsonq
      * @throws NullValueException
      * @throws ConditionNotAllowedException
@@ -518,15 +560,15 @@ class Jsonq
     /**
      * import raw JSON data for process
      *
-     * @param $data string
+     * @param string $data
      * @return jsonq
      */
     public function json($data)
     {
-        if (is_string($data)) {
-            if ($json = $this->isJson($data, true)) {
-                return $this->collect($json);
-            }
+        $json = $this->isJson($data, true);
+
+        if ($json) {
+            return $this->collect($json);
         }
 
         return $this;
@@ -535,7 +577,7 @@ class Jsonq
     /**
      * import parsed data from raw json
      *
-     * @param $data array|object
+     * @param array|object $data
      * @return jsonq
      */
     public function collect($data)
@@ -549,8 +591,8 @@ class Jsonq
     /**
      * implode resulting data from desire key and delimeter
      *
-     * @param $key string|array
-     * @param $delimiter string
+     * @param string|array $key
+     * @param string $delimiter
      * @return string|array
      * @throws ConditionNotAllowedException
      */
@@ -577,8 +619,8 @@ class Jsonq
     /**
      * process implode from resulting data
      *
-     * @param $key string
-     * @param $delimiter string
+     * @param string $key
+     * @param string $delimiter
      * @return string|null
      */
     protected function makeImplode($key, $delimiter)
@@ -595,7 +637,7 @@ class Jsonq
     /**
      * getting specific key's value from prepared data
      *
-     * @param $column string
+     * @param string $column
      * @return object|array
      * @throws ConditionNotAllowedException
      */
@@ -648,7 +690,7 @@ class Jsonq
     /**
      * getting chunk values from prepared data
      *
-     * @param $amount
+     * @param int $amount
      * @param $fn
      * @return object|array|bool
      * @throws ConditionNotAllowedException

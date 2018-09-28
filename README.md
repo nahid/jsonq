@@ -2,6 +2,12 @@
 
 **JsonQ** is a simple, elegant PHP package to Query over any type of JSON Data. It'll make your life easier by giving the flavour of an ORM-like query on your JSON.
 
+## Support For This Project
+
+Hey due, please help me out for daily improve this project
+
+[![Beerpay](https://beerpay.io/nahid/jsonq/badge.svg)](https://beerpay.io/nahid/jsonq)
+
 ## Installation
 
 ```
@@ -135,6 +141,8 @@ Following API examples are shown based on the sample JSON data given [here](exam
 * [find](#findpath)
 * [at](#atpath)
 * [from](#frompath)
+* [select](#select)
+* [except](#except)
 * [then](#then)
 * [collect](#collect)
 * [json](#json)
@@ -173,8 +181,8 @@ Following API examples are shown based on the sample JSON data given [here](exam
 * [transform](#transform)
 * [each](#each)
 * [pipe](#pipe)
-* [macro](#macro)
 * [chunk](#chunk)
+* [macro](#macro)
 
 ### `fetch()`
 
@@ -193,14 +201,14 @@ You don't need to call `fetch()` method after this. Because this method will fet
 Let's say you want to get the value of _'cities'_ property of your Json Data. You can do it like this:
 
 ```php
-$q = new jsonq('data.json');
+$q = new Jsonq('data.json');
 echo $q->find('vendor.name');
 ```
 
 If you want to traverse to more deep in hierarchy, you can do it like:
 
 ```php
-$q = new jsonq('data.json');
+$q = new Jsonq('data.json');
 echo $q->find('vendor.name');
 ```
 
@@ -219,14 +227,14 @@ Difference between this method and `find()` is that, `find()` method will return
 Let's say you want to start query over the values of _'vendor.name'_ property of your JSON Data. You can do it like this:
 
 ```php
-$q = new jsonq('data.json');
+$q = new Jsonq('data.json');
 echo $q->from('vendor.name')->get();
 ```
 
 If you want to traverse to more deep in hierarchy, you can do it like:
 
 ```php
-$q = new jsonq('data.json');
+$q = new Jsonq('data.json');
 echo $q->from('users.5.visits')->get();
 ```
 
@@ -273,14 +281,14 @@ This is an alias method of `from()` and will behave exactly like that. See examp
 Let's say you want to find the _'users'_ who has _`id`_ of `1`. You can do it like this:
 
 ```php
-$q = new jsonq('data.json');
+$q = new Jsonq('data.json');
 $res = $q->from('users')->where('id', '=', 1)->get();
 ```
 
 You can add multiple _where_ conditions. It'll give the result by AND-ing between these multiple where conditions.
 
 ```php
-$q = new jsonq('data.json');
+$q = new Jsonq('data.json');
 $res = $q->from('users')
 ->where('id', '=', 1)
 ->where('location', '=', 'barisal')
@@ -296,7 +304,7 @@ Parameters of `orWhere()` are the same as `where()`. The only difference between
 For example, if you want to find the users with _id_ of `1` or `2`, you can do it like this:
 
 ```php
-$q = new jsonq('data.json');
+$q = new Jsonq('data.json');
 $res = $q->from('users')
 ->where('id', '=', 1)
 ->orWhere('id', '=', 2)
@@ -361,7 +369,7 @@ This method will behave like `where(key, 'contains', val)` method call.
 Let's say you want to find the sum of the _'price'_ of the _'products'_. You can do it like this:
 
 ```php
-$q = new jsonq('data.json');
+$q = new Jsonq('data.json');
 $res = $q->from('products')
 ->where('cat', '=', 1)
 ->sum('price');
@@ -379,7 +387,7 @@ It will return the number of elements in the collection.
 Let's say you want to find how many elements are in the _'products'_ property. You can do it like:
 
 ```php
-$q = new jsonq('data.json');
+$q = new Jsonq('data.json');
 $res = $q->from('products')
 ->where('cat', '=', 1)
 ->count();
@@ -400,7 +408,7 @@ This is an alias method of `count()`.
 Let's say you want to find the maximum of the _'price'_ of the _'products'_. You can do it like this:
 
 ```php
-$q = new jsonq('data.json');
+$q = new Jsonq('data.json');
 $res = $q->from('products')
 ->where('cat', '=', 1)
 ->max('price);
@@ -418,7 +426,7 @@ See detail example [here](examples/max.php)
 Let's say you want to find the minimum of the _'price'_ of the _'products'_. You can do it like this:
 
 ```php
-$q = new jsonq('data.json');
+$q = new Jsonq('data.json');
 $res = $q->from('products')
 ->where('cat', '=', 1)
 ->min('price');
@@ -436,7 +444,7 @@ See detail example [here](examples/min.php)
 Let's say you want to find the average of the _'price'_ of the _'products'_. You can do it like this:
 
 ```php
-$q = new jsonq('data.json');
+$q = new Jsonq('data.json');
 $res = $q->from('products')
 ->where('cat', '=', 1)
 ->avg('price');
@@ -467,7 +475,7 @@ It will return the last element of the collection.
 **example:**
 
 ```php
-$q = new jsonq('data.json');
+$q = new Jsonq('data.json');
 $res = $q->from('products')
 ->where('cat', '=', 1)
 ->last();
@@ -484,7 +492,7 @@ It will return the nth element of the collection. If the given index is a **posi
 **example:**
 
 ```php
-$q = new jsonq('data.json');
+$q = new Jsonq('data.json');
 $res = $q->from('products')
 ->where('cat', '=', 1)
 ->nth(2);
@@ -501,7 +509,7 @@ It will return **true** if the element is not **empty** or not **null** or not a
 Let's say you want to find how many elements are in the _'products'_ property. You can do it like:
 
 ```php
-$q = new jsonq('data.json');
+$q = new Jsonq('data.json');
 $res = $q->from('products')
 ->where('cat', '=', 1)
 ->exists();
@@ -518,7 +526,7 @@ See detail example [here](examples/exists.php).
 Let's say you want to group the _'users'_ data based on the _'location'_ property. You can do it like:
 
 ```php
-$q = new jsonq('data.json');
+$q = new Jsonq('data.json');
 $res = $q->from('users')
 ->groupBy('location')
 ->get();
@@ -537,8 +545,8 @@ See detail example [here](examples/group-by.php).
 Let's say you want to sort the _'arr'_ data. You can do it like:
 
 ```php
-$q = new jsonq();
-$res = $q->collect([7, 5, 9, 1, 3)
+$q = new Jsonq();
+$res = $q->collect([7, 5, 9, 1, 3])
 ->sort();
 ```
 
@@ -556,7 +564,7 @@ See detail example [here](examples/sort.php).
 Let's say you want to sort the _'price'_ data of _'products'_. You can do it like:
 
 ```php
-$q = new jsonq('data.json');
+$q = new Jsonq('data.json');
 $res = $q->from('products')
 ->where('cat', '=', 1)
 ->sortBy('price', 'desc');
@@ -592,4 +600,9 @@ This package has also different language support.
 
 - [JavaScript JsonQ](https://github.com/me-shaon/js-jsonq) developed by [Ahmed shamim](https://github.com/me-shaon)
 - [Python JsonQ](https://github.com/s1s1ty/py-jsonq) developed by [Shaon Shaonty](https://github.com/s1s1ty)
-- [Go JsonQ](https://github.com/thedevsaddam/go-jsonq) developed by [Saddam H](https://github.com/thedevsaddam) - Upcoming
+- [Go JsonQ](https://github.com/thedevsaddam/gojsonq) developed by [Saddam H](https://github.com/thedevsaddam) - Upcoming
+
+## Support on Beerpay
+Hey dude! Help me out for a couple of :beers:!
+
+[![Beerpay](https://beerpay.io/nahid/jsonq/badge.svg?style=beer-square)](https://beerpay.io/nahid/jsonq)  [![Beerpay](https://beerpay.io/nahid/jsonq/make-wish.svg?style=flat-square)](https://beerpay.io/nahid/jsonq?focus=wish)

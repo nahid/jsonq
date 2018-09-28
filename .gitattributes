@@ -4,3 +4,6 @@
 /.gitignore export-ignore
 /README.md export-ignore
 /examples export-ignore
+/tests export-ignore
+/phpunit.xml.dist	export-ignore
+/.travis.yml export-ignore

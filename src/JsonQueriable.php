@@ -4,12 +4,14 @@ namespace Nahid\JsonQ;
 
 use Nahid\JsonQ\Exceptions\ConditionNotAllowedException;
 use Nahid\JsonQ\Exceptions\FileNotFoundException;
+use Nahid\JsonQ\Exceptions\InvalidJsonException;
+use Nahid\JsonQ\Condition;
 
 trait JsonQueriable
 {
     /**
      * store node path
-     * @var string
+     * @var string|array
      */
     protected $_node = '';
 
@@ -18,6 +20,18 @@ trait JsonQueriable
      * @var mixed
      */
     protected $_map;
+
+    /**
+     * contains column names
+     * @var array
+     */
+    protected $_select = [];
+
+    /**
+     * contains column names for except
+     * @var array
+     */
+    protected $_except = [];
 
     /**
      * Stores base contents.
@@ -34,7 +48,7 @@ trait JsonQueriable
     protected $_conditions = [];
 
     /**
-     * @var bool 
+     * @var bool
      */
     protected $_isProcessed = false;
 
@@ -45,43 +59,47 @@ trait JsonQueriable
     protected static $_rulesMap = [
         '=' => 'equal',
         'eq' => 'equal',
-        '==' => 'exactEqual',
-        'seq' => 'exactEqual',
+        '==' => 'strictEqual',
+        'seq' => 'strictEqual',
         '!=' => 'notEqual',
         'neq' => 'notEqual',
-        '!==' => 'notExactEqual',
-        'sneq' => 'notExactEqual',
-        '>' => 'greater',
-        'gt' => 'greater',
-        '<' => 'less',
-        'lt' => 'less',
-        '>=' => 'greaterEqual',
-        'gte' => 'greaterEqual',
-        '<=' => 'lessEqual',
-        'lte' => 'lessEqual',
+        '!==' => 'strictNotEqual',
+        'sneq' => 'strictNotEqual',
+        '>' => 'greaterThan',
+        'gt' => 'greaterThan',
+        '<' => 'lessThan',
+        'lt' => 'lessThan',
+        '>=' => 'greaterThanOrEqual',
+        'gte' => 'greaterThanOrEqual',
+        '<=' => 'lessThanOrEqual',
+        'lte' => 'lessThanOrEqual',
         'in'    => 'in',
         'notin' => 'notIn',
-        'null' => 'null',
-        'notnull' => 'notNull',
-        'startswith' => 'startsWith',
-        'endswith' => 'endsWith',
+        'null' => 'isNull',
+        'notnull' => 'isNotNull',
+        'startswith' => 'startWith',
+        'endswith' => 'endWith',
         'match' => 'match',
         'contains' => 'contains',
+        'dates' => 'dateEqual',
+        'month' => 'monthEqual',
+        'year' => 'yearEqual',
     ];
 
 
     /**
      * import data from file
      *
-     * @param $json_file string
+     * @param string|null $file
      * @return bool
      * @throws FileNotFoundException
+     * @throws InvalidJsonException
      */
-    public function import($json_file = null)
+    public function import($file = null)
     {
-        if (!is_null($json_file)) {
-            if (file_exists($json_file)) {
-                $this->_map = $this->getDataFromFile($json_file);
+        if (!is_null($file)) {
+            if (is_string($file) && file_exists($file)) {
+                $this->_map = $this->getDataFromFile($file);
                 $this->_baseContents = $this->_map;
                 return true;
             }
@@ -118,9 +136,9 @@ trait JsonQueriable
     }
 
     /**
-     * parse object to array
+     * Parse object to array
      *
-     * @param $obj object
+     * @param object $obj
      * @return array|mixed
      */
     protected function objectToArray($obj)
@@ -141,9 +159,9 @@ trait JsonQueriable
     }
 
     /**
-     * check given value is multidimensional array
+     * Check given value is multidimensional array
      *
-     * @param $arr array
+     * @param array $arr
      * @return bool
      */
     protected function isMultiArray($arr)
@@ -158,46 +176,104 @@ trait JsonQueriable
     }
 
     /**
-     * check given value is valid JSON
-     * @param $value string
-     * @param $return_map bool
-     * @return bool|array|string
+     * Check given value is valid JSON
+     *
+     * @param string $value
+     * @param bool $isReturnMap
+     * 
+     * @return bool|array
      */
-    public function isJson($value, $return_map = false)
+    public function isJson($value, $isReturnMap = false)
     {
+        if (is_array($value) || is_object($value)) {
+            return false;
+        }
+        
         $data = json_decode($value, true);
 
-        return (json_last_error() == JSON_ERROR_NONE) ? ($return_map ? $data : true) : json_last_error_msg();
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return false;
+        }
+        
+        return $isReturnMap ? $data : true;
     }
-    
+
+
+    public function takeColumn($array)
+    {
+        return $this->selectColumn($this->exceptColumn($array));
+    }
+
     /**
-     * prepare data for result
+     * selecting specific column
+     *
+     * @param $array
+     * @return array
+     */
+    protected function selectColumn($array)
+    {
+        $keys = $this->_select;
+
+        if (count($keys) == 0) {
+            return $array;
+        }
+
+        return array_intersect_key($array, array_flip((array) $keys));
+    }
+
+    /**
+     * selecting specific column
+     *
+     * @param $array
+     * @return array
+     */
+    protected function exceptColumn($array)
+    {
+        $keys = $this->_except;
+
+        if (count($keys) == 0) {
+            return $array;
+        }
+
+        return array_diff_key($array, array_flip((array) $keys));
+    }
+
+
+    /**
+     * Prepare data for result
      *
      * @param mixed $data
      * @param bool $isObject
-     * @return array
+     * @return array|mixed
      */
     protected function prepareResult($data, $isObject)
     {
         $output = [];
-        if (is_array($data)) {
+
+        if (is_null($data) || is_scalar($data)) {
+            return $data;
+        }
+
+        if ($this->isMultiArray($data)) {
             foreach ($data as $key => $val) {
+                $val = $this->takeColumn($val);
                 $output[$key] = $isObject ? (object) $val : $val;
             }
         } else {
-            $output = json_decode(json_encode($data), $isObject);
+            $output = json_decode(json_encode($this->takeColumn($data)), $isObject);
         }
 
         return $output;
     }
 
     /**
-     * read JSON data from file
+     * Read JSON data from file
      *
-     * @param $file string
-     * @param $type string
+     * @param string $file
+     * @param string $type
      * @return bool|string|array
      * @throws FileNotFoundException
+     * @throws InvalidJsonException
      */
     protected function getDataFromFile($file, $type = 'application/json')
     {
@@ -209,33 +285,40 @@ trait JsonQueriable
             ];
 
             $context = stream_context_create($opts);
-
             $data = file_get_contents($file, 0, $context);
-
-            return $this->isJson($data, true);
+            $json = $this->isJson($data, true);
+            
+            if (!$json) {
+                throw new InvalidJsonException();
+            }
+            
+            return $json;
         }
 
         throw new FileNotFoundException();
     }
 
+
+
     /**
-     * get data from node path
+     * Get data from nested array
      *
-     * @return mixed
+     * @param $map array
+     * @param $node string
+     * @return bool|array|mixed
      */
-    protected function getData()
+    protected function getFromNested($map, $node)
     {
-        if (empty($this->_node) || $this->_node == '.') {
-            return $this->_map;
+        if (empty($node) || $node == '.') {
+            return $map;
         }
 
-        if ($this->_node) {
+        if ($node) {
             $terminate = false;
-            $map = $this->_map;
-            $path = $this->_node;
+            $path = explode('.', $node);
 
             foreach ($path as $val) {
-                if (!isset($map[$val])) {
+                if (!array_key_exists($val, $map)) {
                     $terminate = true;
                     break;
                 }
@@ -254,6 +337,16 @@ trait JsonQueriable
     }
 
     /**
+     * get data from node path
+     *
+     * @return mixed
+     */
+    protected function getData()
+    {
+        return $this->getFromNested($this->_map, $this->_node);
+    }
+
+    /**
      * process AND and OR conditions
      *
      * @return array|string|object
@@ -268,25 +361,18 @@ trait JsonQueriable
             foreach ($conditions as $cond) {
                 $tmp = true;
                 foreach ($cond as $rule) {
-                    $call_func = [];
-                    if (is_callable(self::$_rulesMap[$rule['condition']])) {
-                        $func = self::$_rulesMap[$rule['condition']];
-                        $call_func = $func;
-                    } else {
-                        $func = 'cond' . ucfirst(self::$_rulesMap[$rule['condition']]);
-                        $call_func[] = $this;
-                        $call_func[] = $func;
-                    }
-                    if (is_callable($func) || method_exists($this, $func) ) {
-                        if (isset($val[$rule['key']])) {
-                            $return = call_user_func_array($call_func, [$val[$rule['key']], $rule['value']]);
-                        }else {
-                            $return = false;
+                    $function = self::$_rulesMap[$rule['condition']];
+                    if (!is_callable($function)) {
+                        if (!method_exists(Condition::class, $function)) {
+                            throw new ConditionNotAllowedException("Exception: $function condition not allowed");
                         }
-                        $tmp &= $return;
-                    } else {
-                        throw new ConditionNotAllowedException('Exception: ' . $func . ' condition not allowed');
+                        
+                        $function = [Condition::class, $function];
                     }
+                    
+                    $value = $this->getFromNested($val, $rule['key']);
+                    $return = call_user_func_array($function, [$value, $rule['value']]);
+                    $tmp &= $return;
                 }
                 $res |= $tmp;
             }
@@ -299,9 +385,9 @@ trait JsonQueriable
     /**
      * make WHERE clause
      *
-     * @param $key string
-     * @param $condition string
-     * @param $value mixed
+     * @param string $key
+     * @param string $condition
+     * @param mixed $value
      * @return $this
      */
     public function where($key, $condition = null, $value = null)
@@ -320,9 +406,9 @@ trait JsonQueriable
     /**
      * make WHERE clause with OR
      *
-     * @param $key string
-     * @param $condition string
-     * @param $value mixed
+     * @param string $key
+     * @param string $condition
+     * @param mixed $value
      * @return $this
      */
     public function orWhere($key = null, $condition = null, $value = null)
@@ -340,9 +426,9 @@ trait JsonQueriable
     /**
      * generator for AND and OR where
      *
-     * @param $key string
-     * @param $condition string
-     * @param $value mixed
+     * @param string $key
+     * @param string $condition
+     * @param mixed $value
      * @return $this
      */
     protected function makeWhere($key, $condition = null, $value = null)
@@ -368,8 +454,8 @@ trait JsonQueriable
     /**
      * make WHERE IN clause
      *
-     * @param $key string
-     * @param $value array
+     * @param string $key
+     * @param array $value
      * @return $this
      */
     public function whereIn($key = null, $value = [])
@@ -382,8 +468,8 @@ trait JsonQueriable
     /**
      * make WHERE NOT IN clause
      *
-     * @param $key string
-     * @param $value mixed
+     * @param string $key
+     * @param mixed $value
      * @return $this
      */
     public function whereNotIn($key = null, $value = [])
@@ -395,24 +481,24 @@ trait JsonQueriable
     /**
      * make WHERE NULL clause
      *
-     * @param $key string
+     * @param string $key
      * @return $this
      */
     public function whereNull($key = null)
     {
-        $this->where($key, 'null', null);
+        $this->where($key, 'null', 'null');
         return $this;
     }
 
     /**
      * make WHERE NOT NULL clause
      *
-     * @param $key string
+     * @param string $key
      * @return $this
      */
     public function whereNotNull($key = null)
     {
-        $this->where($key, 'notnull', null);
+        $this->where($key, 'notnull', 'null');
 
         return $this;
     }
@@ -420,8 +506,8 @@ trait JsonQueriable
     /**
      * make WHERE START WITH clause
      *
-     * @param $key string
-     * @param $value string
+     * @param string $key
+     * @param string $value
      * @return $this
      */
     public function whereStartsWith($key, $value)
@@ -434,8 +520,8 @@ trait JsonQueriable
     /**
      * make WHERE ENDS WITH clause
      *
-     * @param $key string
-     * @param $value string
+     * @param string $key
+     * @param string $value
      * @return $this
      */
     public function whereEndsWith($key, $value)
@@ -448,8 +534,8 @@ trait JsonQueriable
     /**
      * make WHERE MATCH clause
      *
-     * @param $key string
-     * @param $value string
+     * @param string $key
+     * @param string $value
      * @return $this
      */
     public function whereMatch($key, $value)
@@ -462,8 +548,8 @@ trait JsonQueriable
     /**
      * make WHERE CONTAINS clause
      *
-     * @param $key string
-     * @param $value string
+     * @param string $key
+     * @param string $value
      * @return $this
      */
     public function whereContains($key, $value)
@@ -474,10 +560,52 @@ trait JsonQueriable
     }
 
     /**
+     * make WHERE DATE clause
+     *
+     * @param string $key
+     * @param string $value
+     * @return $this
+     */
+    public function whereDate($key, $value)
+    {
+        $this->where($key, 'dates', $value);
+
+        return $this;
+    }
+
+    /**
+     * make WHERE month clause
+     *
+     * @param string $key
+     * @param string $value
+     * @return $this
+     */
+    public function whereMonth($key, $value)
+    {
+        $this->where($key, 'month', $value);
+
+        return $this;
+    }
+
+    /**
+     * make WHERE Year clause
+     *
+     * @param string $key
+     * @param string $value
+     * @return $this
+     */
+    public function whereYear($key, $value)
+    {
+        $this->where($key, 'year', $value);
+
+        return $this;
+    }
+
+    /**
      * make macro for custom where clause
      *
-     * @param $name string
-     * @param $fn callable
+     * @param string $name
+     * @param callable $fn
      * @return bool
      */
     public static function macro($name, callable $fn)
@@ -488,199 +616,5 @@ trait JsonQueriable
         }
 
         return false;
-    }
-
-    // condition methods
-
-    /**
-     * make Equal condition
-     *
-     * @param $val string
-     * @param $payable mixed
-     * @return bool
-     */
-    protected function condEqual($val, $payable)
-    {
-        return $val == $payable;
-    }
-
-    /**
-     * make Exact Equal condition
-     *
-     * @param $val string
-     * @param $payable mixed
-     * @return bool
-     */
-    protected function condExactEqual($val, $payable)
-    {
-        return $val === $payable;
-    }
-
-    /**
-     * make Not Equal condition
-     *
-     * @param $val string
-     * @param $payable mixed
-     * @return bool
-     */
-    protected function condNotEqual($val, $payable)
-    {
-        return $val != $payable;
-    }
-
-    /**
-     * make Not Exact Equal condition
-     *
-     * @param $val string
-     * @param $payable mixed
-     * @return bool
-     */
-    protected function condNotExactEqual($val, $payable)
-    {
-        return $val !== $payable;
-    }
-
-    /**
-     * make Greater Than condition
-     *
-     * @param $val string
-     * @param $payable mixed
-     * @return bool
-     */
-    protected function condGreater($val, $payable)
-    {
-        return $val > $payable;
-    }
-
-    /**
-     * make Less Than condition
-     *
-     * @param $val string
-     * @param $payable mixed
-     * @return bool
-     */
-    protected function condLess($val, $payable)
-    {
-        return $val < $payable;
-    }
-
-    /**
-     * make Greater Equal condition
-     *
-     * @param $val string
-     * @param $payable mixed
-     * @return bool
-     */
-    protected function condGreaterEqual($val, $payable)
-    {
-        return $val >= $payable;
-    }
-
-    /**
-     * make Less Equal condition
-     *
-     * @param $val string
-     * @param $payable mixed
-     * @return bool
-     */
-    protected function condLessEqual($val, $payable)
-    {
-        return $val <= $payable;
-    }
-
-    /**
-     * make In condition
-     *
-     * @param $val string
-     * @param $payable mixed
-     * @return bool
-     */
-    protected function condIn($val, $payable)
-    {
-        return (is_array($payable) && in_array($val, $payable));
-    }
-
-    /**
-     * make Not In condition
-     *
-     * @param $val string
-     * @param $payable mixed
-     * @return bool
-     */
-    protected function condNotIn($val, $payable)
-    {
-        return (is_array($val) && !in_array($val, $payable));
-    }
-
-    /**
-     * make Null condition
-     *
-     * @param $val string
-     * @param $payable mixed
-     * @return bool
-     */
-    protected function condNull($val, $payable)
-    {
-        return (is_null($val) || $val == $payable);
-    }
-
-    /**
-     * make Not Null condition
-     *
-     * @param $val string
-     * @param $payable mixed
-     * @return bool
-     */
-    protected function condNotNull($val, $payable)
-    {
-        return (!is_null($val) && $val !== $payable);
-    }
-
-    /**
-     * make Starts With condition
-     *
-     * @param $val string
-     * @param $payable mixed
-     * @return bool
-     */
-    protected function condStartsWith($val, $payable)
-    {
-        if (preg_match("/^$payable/", $val)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * make Match condition
-     *
-     * @param $val string
-     * @param $payable mixed
-     * @return bool
-     */
-    protected function condMatch($val, $payable)
-    {
-        $payable = rtrim($payable, '$/');
-        $payable = ltrim($payable, '/^');
-
-        $pattern = '/^'.$payable.'$/';
-        if (preg_match($pattern, $val)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * make Contains condition
-     *
-     * @param $val string
-     * @param $payable mixed
-     * @return bool
-     */
-    protected function condContains($val, $payable)
-    {
-        return (strpos($val, $payable) !== false);
     }
 }
