@@ -371,7 +371,7 @@ trait JsonQueriable
                     }
                     
                     $value = $this->getFromNested($val, $rule['key']);
-                    $return = $value === null || $value ? call_user_func_array($function, [$value, $rule['value']]) : false;
+                    $return = call_user_func_array($function, [$value, $rule['value']]);
                     $tmp &= $return;
                 }
                 $res |= $tmp;
