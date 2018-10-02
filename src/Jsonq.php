@@ -160,6 +160,7 @@ class Jsonq
         }
 
         $this->_map = $this->_baseContents;
+        $this->reProcess();
 
         return $this;
     }
