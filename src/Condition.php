@@ -14,7 +14,6 @@ class Condition
      */
     public static function equal($value, $comparable)
     {
-        dump($value, $comparable);
         return $value == $comparable;
     }
 
