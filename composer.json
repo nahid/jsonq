@@ -4,7 +4,7 @@
     "keywords": ["json", "jsonq", "query"],
     "homepage": "https://github.com/nahid/jsonq",
     "type": "library",
-    "license": "CC-BY-3.0",
+    "license": "CC0-1.0",
     "authors": [
         {
             "name": "Nahid Bin Azhar",
