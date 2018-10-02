@@ -371,7 +371,7 @@ trait JsonQueriable
                     }
                     
                     $value = $this->getFromNested($val, $rule['key']);
-                    $return = $value === null || $value ? call_user_func_array($function, [$value, $rule['value']]) : false;
+                    $return = $value === null || $value !== '' ? call_user_func_array($function, [$value, $rule['value']]) : false;
                     $tmp &= $return;
                 }
                 $res |= $tmp;
@@ -487,6 +487,21 @@ trait JsonQueriable
     public function whereNull($key = null)
     {
         $this->where($key, 'null', 'null');
+        return $this;
+    }
+
+
+    /**
+     * make WHERE Boolean clause
+     *
+     * @param string $key
+     * @return $this
+     */
+    public function whereBool($key = null, $value)
+    {
+        if (is_bool($value)) {
+            $this->where($key, '==', $value);
+        }
         return $this;
     }
 

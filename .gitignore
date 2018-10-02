@@ -3,3 +3,5 @@ vendor
 .DS_Store
 .php_cs.cache
 composer.lock
+examples/t.php
+examples/t.json
