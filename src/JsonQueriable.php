@@ -136,6 +136,18 @@ trait JsonQueriable
     }
 
     /**
+     * Our system will cache processed data and prevend multiple time processing. If
+     * you want to reprocess this method can help you
+     *
+     * @return $this
+     */
+    public function reProcess()
+    {
+        $this->_isProcessed = false;
+        return $this;
+    }
+
+    /**
      * Parse object to array
      *
      * @param object $obj
