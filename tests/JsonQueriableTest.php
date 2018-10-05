@@ -5,6 +5,7 @@ namespace Nahid\JsonQ\Tests;
 use Nahid\JsonQ\Jsonq;
 use Nahid\JsonQ\Exceptions\FileNotFoundException;
 use Nahid\JsonQ\Exceptions\InvalidJsonException;
+use Nahid\JsonQ\Results\ValueNotFound;
 
 class JsonQueriableTest extends AbstractTestCase
 {
@@ -59,6 +60,18 @@ class JsonQueriableTest extends AbstractTestCase
                 'level3.16' => 'data316',
                 'level3.17' => 317,
                 'level3.18' => true,
+            ]
+        ]
+    ];
+
+    protected static $testDataNesting = [
+        'level1' => [
+            'level2' => [
+                'level3-1' => 'data31',
+                'level3-2' => 32,
+                'level3-3' => false,
+                'level3-4' => null,
+                'level3-5' => '',
             ]
         ]
     ];
@@ -193,6 +206,39 @@ class JsonQueriableTest extends AbstractTestCase
         }
     }
     
+    /**
+     * @param mixed $path
+     * @param mixed $expected
+     *
+     * @dataProvider getFromNestedProvider
+     */
+    public function testGetFromNested($path, $expected)
+    {
+        $method = $this->makeCallable($this->jsonq, 'getFromNested');
+        
+        $input = [self::$testDataNesting, $path];
+
+        $result = $method->invokeArgs($this->jsonq, $input);
+
+        if ($result instanceof ValueNotFound) {
+            $result = ValueNotFound::class;
+        }
+
+        $this->assertEquals($expected, $result);
+    }
+    
+    public function getFromNestedProvider()
+    {
+        return [
+            ['level1.level2.level3-1', 'data31'], 
+            ['level1.level2.level3-2', 32], 
+            ['level1.level2.level3-3', false], 
+            ['level1.level2.level3-4', null], 
+            ['level1.level2.level3-5', ''], 
+            ['level1.level2.not-existing', ValueNotFound::class], 
+        ];
+    }    
+
     public function getDataFromFileProvider()
     {
         return [
