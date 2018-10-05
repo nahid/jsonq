@@ -5,6 +5,7 @@ namespace Nahid\JsonQ;
 use Nahid\JsonQ\Exceptions\ConditionNotAllowedException;
 use Nahid\JsonQ\Exceptions\FileNotFoundException;
 use Nahid\JsonQ\Exceptions\InvalidJsonException;
+use Nahid\JsonQ\Results\ValueNotFound;
 use Nahid\JsonQ\Condition;
 
 trait JsonQueriable
@@ -339,13 +340,13 @@ trait JsonQueriable
             }
 
             if ($terminate) {
-                return false;
+                return new ValueNotFound();
             }
 
             return $map;
         }
 
-        return false;
+        return new ValueNotFound();
     }
 
     /**
@@ -383,7 +384,7 @@ trait JsonQueriable
                     }
                     
                     $value = $this->getFromNested($val, $rule['key']);
-                    $return = $value === null || $value !== '' ? call_user_func_array($function, [$value, $rule['value']]) : false;
+                    $return = $value instanceof ValueNotFound ? false :  call_user_func_array($function, [$value, $rule['value']]);
                     $tmp &= $return;
                 }
                 $res |= $tmp;
