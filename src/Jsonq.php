@@ -151,12 +151,20 @@ class Jsonq
      * reset given data to the $_map
      *
      * @param mixed $data
+     * @param bool $instance
      * @return jsonq
      */
-    public function reset($data = null)
+    public function reset($data = null, $instance = false)
     {
         if (!is_null($data)) {
             $this->_baseContents = $data;
+        }
+
+        if ($instance) {
+            $self = new self();
+            $self->collect($this->_baseContents);
+
+            return $self;
         }
 
         $this->_map = $this->_baseContents;
