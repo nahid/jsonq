@@ -436,6 +436,27 @@ class Jsonq
     }
 
     /**
+     * Sort prepared data using a custom sort function.
+     *
+     * @param callable $sortFunc
+     *
+     * @return object|array|null
+     * @throws ConditionNotAllowedException
+     */
+    public function sortByCallable(callable $sortFunc)
+    {
+        $this->prepare();
+
+        if (!is_array($this->_map)) {
+            return $this;
+        }
+
+        usort($this->_map, $sortFunc);
+
+        return $this;
+    }
+
+    /**
      * Sort an array value
      *
      * @param string $order
