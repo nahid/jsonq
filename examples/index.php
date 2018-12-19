@@ -18,12 +18,11 @@ use Nahid\JsonQ\Jsonq;
 $jq = new Jsonq('data.json');
 
 try {
-    $result = $jq->from('users')
-        ->where('visits.year', '=', 2010)
-        ->sum('visits.year');
-    dump($result);
-} catch (\Nahid\JsonQ\Exceptions\ConditionNotAllowedException $e) {
+    $result = $jq->from('products')
+        ->where('user_id', 1)
+        ->get();
+} catch (\Nahid\QArray\ConditionNotAllowedException $e) {
 
-} catch (\Nahid\JsonQ\Exceptions\NullValueException $e) {
+} catch (\Nahid\QArray\NullValueException $e) {
 
 }
