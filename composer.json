@@ -13,7 +13,7 @@
     ],
   "require": {
     "php": ">=5.5.0",
-        "nahid/qarray": "^0.0.1"
+        "nahid/qarray": "^1.0"
   },
   "require-dev": {
         "phpunit/phpunit": "^4.8 || ^5.0",
