@@ -74,7 +74,7 @@ class Condition
      *
      * @param mixed $value
      * @param mixed $comparable
-     * 
+     *
      * @return bool
      */
     public static function lessThan($value, $comparable)
@@ -171,7 +171,7 @@ class Condition
         if (is_array($comparable) || is_array($value) || is_object($comparable) || is_object($value)) {
             return false;
         }
-        
+
         if (preg_match("/^$comparable/", $value)) {
             return true;
         }
@@ -192,7 +192,7 @@ class Condition
         if (is_array($comparable) || is_array($value) || is_object($comparable) || is_object($value)) {
             return false;
         }
-        
+
         if (preg_match("/$comparable$/", $value)) {
             return true;
         }
@@ -213,10 +213,10 @@ class Condition
         if (is_array($comparable) || is_array($value) || is_object($comparable) || is_object($value)) {
             return false;
         }
-        
+
         $comparable = trim($comparable);
 
-        if (preg_match("/^$comparable$/", $value)) {
+        if (preg_match($comparable, $value)) {
             return true;
         }
 
