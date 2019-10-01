@@ -12,7 +12,8 @@
         }
     ],
   "require": {
-    "php": ">=5.5.0"
+    "php": ">=5.5.0",
+        "psy/psysh": "@stable"
   },
   "require-dev": {
         "phpunit/phpunit": "^4.8 || ^5.0",
