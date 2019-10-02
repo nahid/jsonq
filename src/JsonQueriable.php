@@ -20,7 +20,7 @@ trait JsonQueriable
      * contain prepared data for process
      * @var mixed
      */
-    protected $_map;
+    protected $_data;
 
     /**
      * contains column names
@@ -100,8 +100,8 @@ trait JsonQueriable
     {
         if (!is_null($file)) {
             if (is_string($file) && file_exists($file)) {
-                $this->_map = $this->getDataFromFile($file);
-                $this->_baseContents = $this->_map;
+                $this->_data = $this->getDataFromFile($file);
+                $this->_baseContents = $this->_data;
                 return true;
             }
         }
@@ -123,7 +123,7 @@ trait JsonQueriable
 
         if (count($this->_conditions) > 0) {
             $calculatedData = $this->processConditions();
-            $this->_map = $this->objectToArray($calculatedData);
+            $this->_data = $this->objectToArray($calculatedData);
 
             $this->_conditions = [];
             $this->_node = '';
@@ -132,7 +132,7 @@ trait JsonQueriable
         }
 
         $this->_isProcessed = true;
-        $this->_map = $this->objectToArray($this->getData());
+        $this->_data = $this->objectToArray($this->getData());
         return $this;
     }
 
@@ -356,7 +356,7 @@ trait JsonQueriable
      */
     protected function getData()
     {
-        return $this->getFromNested($this->_map, $this->_node);
+        return $this->getFromNested($this->_data, $this->_node);
     }
 
     /**

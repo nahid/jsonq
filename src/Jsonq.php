@@ -119,7 +119,7 @@ class Jsonq
     {
         $this->prepare();
 
-        return $this->prepareResult($this->_map, $object);
+        return $this->prepareResult($this->_data, $object);
     }
 
     /**
@@ -144,11 +144,11 @@ class Jsonq
     {
         $this->prepare();
 
-        return (!empty($this->_map) && !is_null($this->_map));
+        return (!empty($this->_data) && !is_null($this->_data));
     }
 
     /**
-     * reset given data to the $_map
+     * reset given data to the $_data
      *
      * @param mixed $data
      * @param bool $instance
@@ -167,7 +167,7 @@ class Jsonq
             return $self;
         }
 
-        $this->_map = $this->_baseContents;
+        $this->_data = $this->_baseContents;
         $this->reProcess();
 
         return $this;
@@ -185,14 +185,14 @@ class Jsonq
         $this->prepare();
 
         $data = [];
-        foreach ($this->_map as $map) {
+        foreach ($this->_data as $map) {
             $value = $this->getFromNested($map, $column);
             if ($value) {
                 $data[$value][] = $map;
             }
         }
 
-        $this->_map = $data;
+        $this->_data = $data;
         return $this;
     }
 
@@ -202,7 +202,7 @@ class Jsonq
         $this->prepare();
 
         $data = [];
-        foreach ($this->_map as $map) {
+        foreach ($this->_data as $map) {
             $value = $this->getFromNested($map, $column);
             if (!$value) {
                 continue;
@@ -215,7 +215,7 @@ class Jsonq
             }
         }
 
-        $this->_map = $data;
+        $this->_data = $data;
         return $this;
     }
 
@@ -229,7 +229,7 @@ class Jsonq
     {
         $this->prepare();
 
-        return count($this->_map);
+        return count($this->_data);
     }
 
     /**
@@ -255,9 +255,9 @@ class Jsonq
 
         $sum = 0;
         if (is_null($column)) {
-            $sum = array_sum($this->_map);
+            $sum = array_sum($this->_data);
         } else {
-            foreach ($this->_map as $key => $val) {
+            foreach ($this->_data as $key => $val) {
                 $value = $this->getFromNested($val, $column);
                 if (is_scalar($value)) {
                     $sum += $value;
@@ -281,9 +281,9 @@ class Jsonq
         $this->prepare();
 
         if (is_null($column)) {
-            $max = max($this->_map);
+            $max = max($this->_data);
         } else {
-            $max = max(array_column($this->_map, $column));
+            $max = max(array_column($this->_data, $column));
         }
 
         return $max;
@@ -301,9 +301,9 @@ class Jsonq
         $this->prepare();
 
         if (is_null($column)) {
-            $min = min($this->_map);
+            $min = min($this->_data);
         } else {
-            $min = min(array_column($this->_map, $column));
+            $min = min(array_column($this->_data, $column));
         }
 
         return $min;
@@ -337,7 +337,7 @@ class Jsonq
     {
         $this->prepare();
 
-        $data = $this->_map;
+        $data = $this->_data;
         if (count($data) > 0) {
             return $this->prepareResult(reset($data), $object);
         }
@@ -356,7 +356,7 @@ class Jsonq
     {
         $this->prepare();
 
-        $data = $this->_map;
+        $data = $this->_data;
         if (count($data) > 0) {
             return $this->prepareResult(end($data), $object);
         }
@@ -376,11 +376,11 @@ class Jsonq
     {
         $this->prepare();
 
-        $data = $this->_map;
+        $data = $this->_data;
         $total_elm = count($data);
         $idx =  abs($index);
 
-        if (!is_integer($index) || $total_elm < $idx || $index == 0 || !is_array($this->_map)) {
+        if (!is_integer($index) || $total_elm < $idx || $index == 0 || !is_array($this->_data)) {
             return null;
         }
 
@@ -405,11 +405,11 @@ class Jsonq
     {
         $this->prepare();
 
-        if (!is_array($this->_map)) {
+        if (!is_array($this->_data)) {
             return $this;
         }
 
-        usort($this->_map, function ($a, $b) use ($column, $order) {
+        usort($this->_data, function ($a, $b) use ($column, $order) {
             $val1 = $this->getFromNested($a, $column);
             $val2 = $this->getFromNested($b, $column);
             if (is_string($val1)) {
@@ -447,11 +447,11 @@ class Jsonq
     {
         $this->prepare();
 
-        if (!is_array($this->_map)) {
+        if (!is_array($this->_data)) {
             return $this;
         }
 
-        usort($this->_map, $sortFunc);
+        usort($this->_data, $sortFunc);
 
         return $this;
     }
@@ -465,9 +465,9 @@ class Jsonq
     public function sort($order = 'asc')
     {
         if ($order == 'desc') {
-            rsort($this->_map);
+            rsort($this->_data);
         }else{
-            sort($this->_map);
+            sort($this->_data);
         }
 
         return $this;
@@ -497,7 +497,7 @@ class Jsonq
     {
         $this->prepare();
 
-        foreach ($this->_map as $key => $val) {
+        foreach ($this->_data as $key => $val) {
             $fn($key, $val);
         }
     }
@@ -514,7 +514,7 @@ class Jsonq
         $this->prepare();
 
         $new_data = [];
-        foreach ($this->_map as $key => $val) {
+        foreach ($this->_data as $key => $val) {
             $new_data[$key] = $fn($val);
         }
 
@@ -536,11 +536,11 @@ class Jsonq
         if (is_string($fn) && !is_null($class)) {
             $instance = new $class;
 
-            $this->_map = call_user_func_array([$instance, $fn], [$this]);
+            $this->_data = call_user_func_array([$instance, $fn], [$this]);
             return $this;
         }
 
-        $this->_map = $fn($this);
+        $this->_data = $fn($this);
         return $this;
     }
 
@@ -557,7 +557,7 @@ class Jsonq
         $this->prepare();
 
         $data = [];
-        foreach ($this->_map as $k => $val) {
+        foreach ($this->_data as $k => $val) {
             if ($fn($val)) {
                 if ($key) {
                     $data[$k] = $val;
@@ -580,7 +580,7 @@ class Jsonq
      */
     public function then($node)
     {
-        $this->_map = $this->prepare()->first(false);
+        $this->_data = $this->prepare()->first(false);
 
         $this->from($node);
 
@@ -612,8 +612,8 @@ class Jsonq
      */
     public function collect($data)
     {
-        $this->_map = $this->objectToArray($data);
-        $this->_baseContents = &$this->_map;
+        $this->_data = $this->objectToArray($data);
+        $this->_baseContents = &$this->_data;
 
         return $this;
     }
@@ -655,7 +655,7 @@ class Jsonq
      */
     protected function makeImplode($key, $delimiter)
     {
-        $data = array_column($this->_map, $key);
+        $data = array_column($this->_data, $key);
 
         if (is_array($data)) {
             return implode($delimiter, $data);
@@ -675,7 +675,7 @@ class Jsonq
     {
         $this->prepare();
 
-        return array_column($this->_map, $column);
+        return array_column($this->_data, $column);
     }
 
     /**
@@ -688,7 +688,7 @@ class Jsonq
     {
         $this->prepare();
 
-        return json_encode($this->_map);
+        return json_encode($this->_data);
     }
 
     /**
@@ -701,7 +701,7 @@ class Jsonq
     {
         $this->prepare();
 
-        return array_keys($this->_map);
+        return array_keys($this->_data);
     }
 
     /**
@@ -714,7 +714,7 @@ class Jsonq
     {
         $this->prepare();
 
-        return array_values($this->_map);
+        return array_values($this->_data);
     }
 
     /**
@@ -729,7 +729,7 @@ class Jsonq
     {
         $this->prepare();
 
-        $chunk_value = array_chunk($this->_map, $amount);
+        $chunk_value = array_chunk($this->_data, $amount);
         $chunks = [];
 
         if (!is_null($fn) && is_callable($fn)) {
