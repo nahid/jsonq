@@ -8,6 +8,20 @@ Hey due, please help me out for daily improve this project
 
 [![Beerpay](https://beerpay.io/nahid/jsonq/badge.svg)](https://beerpay.io/nahid/jsonq)
 
+
+
+## NOTE
+
+> From the version JsonQ 6.0 all the features rewrite from [QAarray](https://github.com/nahid/qarray). After a long run we noticed that Query Engine of JsonQ should be seperate. Becouse people want to query over various types of data like CSV, YAML, XML. So if we keep the query engine tightly coupled with this project its make no sense. Thats why we move the Query Engine part and develop a new package [QAarray](https://github.com/nahid/qarray). Qarray is designed for queryng over native PHP array and anyone can implement their own Engine, like JsonQ.
+
+
+
+> 
+>
+> ### Please do not update to >= 6.0 version directly from bellow
+
+
+
 ## Installation
 
 ```
@@ -42,33 +56,33 @@ Let's see a quick example:
 ```json
 //data.json
 {
-	"name": "products",
-	"description": "Features product list",
-	"vendor":{
-		"name": "Computer Source BD",
-		"email": "info@example.com",
-		"website":"www.example.com"
-	},
-	"users":[
-		{"id":1, "name":"Johura Akter Sumi", "location": "Barisal"},
-		{"id":2, "name":"Mehedi Hasan Nahid", "location": "Barisal"},
-		{"id":3, "name":"Ariful Islam", "location": "Barisal"},
-		{"id":4, "name":"Suhel Ahmed", "location": "Sylhet"},
-		{"id":5, "name":"Firoz Serniabat", "location": "Gournodi"},
-		{"id":6, "name":"Musa Jewel", "location": "Barisal", "visits": [
-			{"name": "Sylhet", "year": 2011},
-			{"name": "Cox's Bazar", "year": 2012},
-			{"name": "Bandarbar", "year": 2014}
-		]}
-	],
-	"products": [
-		{"id":1, "user_id": 2, "city": "bsl", "name":"iPhone", "cat":1, "price": 80000},
-		{"id":2, "user_id": 2, "city": null, "name":"macbook pro", "cat": 2, "price": 150000},
-		{"id":3, "user_id": 2, "city": "dhk", "name":"Redmi 3S Prime", "cat": 1, "price": 12000},
-		{"id":4, "user_id": 1, "city": null, "name":"Redmi 4X", "cat":1, "price": 15000},
-		{"id":5, "user_id": 1, "city": "bsl", "name":"macbook air", "cat": 2, "price": 110000},
-		{"id":6, "user_id": 2, "city": null, "name":"macbook air 1", "cat": 2, "price": 81000}
-	]
+   "name": "products",
+   "description": "Features product list",
+   "vendor":{
+      "name": "Computer Source BD",
+      "email": "info@example.com",
+      "website":"www.example.com"
+   },
+   "users":[
+      {"id":1, "name":"Johura Akter Sumi", "location": "Barisal"},
+      {"id":2, "name":"Mehedi Hasan Nahid", "location": "Barisal"},
+      {"id":3, "name":"Ariful Islam", "location": "Barisal"},
+      {"id":4, "name":"Suhel Ahmed", "location": "Sylhet"},
+      {"id":5, "name":"Firoz Serniabat", "location": "Gournodi"},
+      {"id":6, "name":"Musa Jewel", "location": "Barisal", "visits": [
+         {"name": "Sylhet", "year": 2011},
+         {"name": "Cox's Bazar", "year": 2012},
+         {"name": "Bandarbar", "year": 2014}
+      ]}
+   ],
+   "products": [
+      {"id":1, "user_id": 2, "city": "bsl", "name":"iPhone", "cat":1, "price": 80000},
+      {"id":2, "user_id": 2, "city": null, "name":"macbook pro", "cat": 2, "price": 150000},
+      {"id":3, "user_id": 2, "city": "dhk", "name":"Redmi 3S Prime", "cat": 1, "price": 12000},
+      {"id":4, "user_id": 1, "city": null, "name":"Redmi 4X", "cat":1, "price": 15000},
+      {"id":5, "user_id": 1, "city": "bsl", "name":"macbook air", "cat": 2, "price": 110000},
+      {"id":6, "user_id": 2, "city": null, "name":"macbook air 1", "cat": 2, "price": 81000}
+   ]
 }
 ```
 
@@ -250,31 +264,31 @@ This is an alias method of `from()` and will behave exactly like that. See examp
 * `val` -- value to be matched with. It can be a _int_, _string_, _bool_ or even _Function_ - depending on the `op`.
 * `op` -- operand to be used for matching. The following operands are available to use:
 
-    * `=` : For weak equality matching
-    * `eq` : Same as `=`
-    * `!=` : For weak not equality matching
-    * `neq` : Same as `!=`
-    * `==` : For strict equality matching
-    * `seq` : Same as `==`
-    * `!==` : For strict not equality matching
-    * `sneq` : Same as `!==`
-    * `>` : Check if value of given **key** in data is Greater than **val**
-    * `gt` : Same as `>`
-    * `<` : Check if value of given **key** in data is Less than **val**
-    * `lt` : Same as `<`
-    * `>=` : Check if value of given **key** in data is Greater than or Equal of **val**
-    * `gte` : Same as `>=`
-    * `<=` : Check if value of given **key** in data is Less than or Equal of **val**
-    * `lte` : Same as `<=`
-    * `null` : Check if the value of given **key** in data is **null** (`val` parameter in `where()` can be omitted for this `op`)
-    * `notnull` : Check if the value of given **key** in data is **not null** (`val` parameter in `where()` can be omitted for this `op`)
-    * `in` : Check if the value of given **key** in data is exists in given **val**. **val** should be a plain _Array_.
-    * `notin` : Check if the value of given **key** in data is not exists in given **val**. **val** should be a plain _Array_.
-    * `startswith` : Check if the value of given **key** in data starts with (has a prefix of) the given **val**. This would only works for _String_ type data.
-    * `endswith` : Check if the value of given **key** in data ends with (has a suffix of) the given **val**. This would only works for _String_ type data.
-    * `contains` : Check if the value of given **key** in data has a substring of given **val**. This would only works for _String_ type data.
-    * `match` : Check if the value of given **key** in data has a Regular Expression match with the given **val**. The `val` parameter should be a **RegExp** for this `op`.
-    * `macro` : It would try to match the value of given **key** in data executing the given `val`. The `val` parameter should be a **Function** for this `op`. This function should have a matching logic inside it and return **true** or **false** based on that.
+  * `=` : For weak equality matching
+  * `eq` : Same as `=`
+  * `!=` : For weak not equality matching
+  * `neq` : Same as `!=`
+  * `==` : For strict equality matching
+  * `seq` : Same as `==`
+  * `!==` : For strict not equality matching
+  * `sneq` : Same as `!==`
+  * `>` : Check if value of given **key** in data is Greater than **val**
+  * `gt` : Same as `>`
+  * `<` : Check if value of given **key** in data is Less than **val**
+  * `lt` : Same as `<`
+  * `>=` : Check if value of given **key** in data is Greater than or Equal of **val**
+  * `gte` : Same as `>=`
+  * `<=` : Check if value of given **key** in data is Less than or Equal of **val**
+  * `lte` : Same as `<=`
+  * `null` : Check if the value of given **key** in data is **null** (`val` parameter in `where()` can be omitted for this `op`)
+  * `notnull` : Check if the value of given **key** in data is **not null** (`val` parameter in `where()` can be omitted for this `op`)
+  * `in` : Check if the value of given **key** in data is exists in given **val**. **val** should be a plain _Array_.
+  * `notin` : Check if the value of given **key** in data is not exists in given **val**. **val** should be a plain _Array_.
+  * `startswith` : Check if the value of given **key** in data starts with (has a prefix of) the given **val**. This would only works for _String_ type data.
+  * `endswith` : Check if the value of given **key** in data ends with (has a suffix of) the given **val**. This would only works for _String_ type data.
+  * `contains` : Check if the value of given **key** in data has a substring of given **val**. This would only works for _String_ type data.
+  * `match` : Check if the value of given **key** in data has a Regular Expression match with the given **val**. The `val` parameter should be a **RegExp** for this `op`.
+  * `macro` : It would try to match the value of given **key** in data executing the given `val`. The `val` parameter should be a **Function** for this `op`. This function should have a matching logic inside it and return **true** or **false** based on that.
 
 **example:**
 
@@ -603,6 +617,7 @@ This package has also different language support.
 - [Go JsonQ](https://github.com/thedevsaddam/gojsonq) developed by [Saddam H](https://github.com/thedevsaddam) - Upcoming
 
 ## Support on Beerpay
+
 Hey dude! Help me out for a couple of :beers:!
 
 [![Beerpay](https://beerpay.io/nahid/jsonq/badge.svg?style=beer-square)](https://beerpay.io/nahid/jsonq)  [![Beerpay](https://beerpay.io/nahid/jsonq/make-wish.svg?style=flat-square)](https://beerpay.io/nahid/jsonq?focus=wish)
