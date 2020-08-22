@@ -15,12 +15,17 @@ use Nahid\JsonQ\Jsonq;
 //});
 //
 
-$jq = new Jsonq('data.json');
+//$jq = new Jsonq('data.json');
 
 try {
-    $result = $jq->from('users')
+    $data = file_get_contents('data.json');
+    // This will remove unwanted characters.
+// Check http://www.php.net/chr for details
+
+    $result = jsonq($data)
+        ->from('users')
         ->where('visits.year', '=', 2010)
-        ->sum('visits.year');
+        ->get();
     dump($result);
 } catch (\Nahid\JsonQ\Exceptions\ConditionNotAllowedException $e) {
 
