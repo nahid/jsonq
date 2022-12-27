@@ -6,6 +6,7 @@ use Nahid\JsonQ\Exceptions\ConditionNotAllowedException;
 use Nahid\JsonQ\Exceptions\InvalidJsonException;
 use Nahid\JsonQ\Exceptions\InvalidNodeException;
 use Nahid\JsonQ\Exceptions\NullValueException;
+use Nahid\JsonQ\Results\ValueNotFound;
 
 class Jsonq
 {
@@ -187,7 +188,7 @@ class Jsonq
         $data = [];
         foreach ($this->_map as $map) {
             $value = $this->getFromNested($map, $column);
-            if ($value) {
+            if (!$value instanceof ValueNotFound) {
                 $data[$value][] = $map;
             }
         }
